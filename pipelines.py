@@ -182,4 +182,11 @@ def main() -> int:
 
 
 if __name__ == "__main__":
+    try:
+        import signal
+
+        signal.signal(signal.SIGPIPE, signal.SIG_DFL)  # see main.py
+    except (ImportError, AttributeError, ValueError):
+        pass
+
     raise SystemExit(main())
