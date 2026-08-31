@@ -38,6 +38,7 @@
   --shadow:       0 2px 14px rgba(0,0,0,.05);
   --shadow-lift:  0 14px 40px rgba(0,0,0,.11);
   --nav-bg:       rgba(255,255,255,.72);
+  --menu-bg:      #fbfbfd;
   --code-bg:      #1d1d1f;
   --code-ink:     #f5f5f7;
   --code-dim:     #86868b;
@@ -65,6 +66,7 @@
     --shadow:       0 2px 14px rgba(0,0,0,.5);
     --shadow-lift:  0 14px 40px rgba(0,0,0,.72);
     --nav-bg:       rgba(0,0,0,.72);
+    --menu-bg:      #0a0a0c;
     --code-bg:      #161618;
   }
 }
@@ -85,6 +87,7 @@
   --shadow:       0 2px 14px rgba(0,0,0,.5);
   --shadow-lift:  0 14px 40px rgba(0,0,0,.72);
   --nav-bg:       rgba(0,0,0,.72);
+  --menu-bg:      #0a0a0c;
   --code-bg:      #161618;
 }
 
@@ -138,10 +141,100 @@ a:hover { color: var(--accent-hover); }
   max-width: var(--col); margin-inline: auto; padding: 0 22px;
   height: 48px; display: flex; align-items: center; gap: 26px;
 }
-.nav__mark { font-weight: 600; font-size: 15px; letter-spacing: -.012em; color: var(--ink); margin-right: auto; }
-.nav__link { font-size: 12.5px; color: var(--ink-soft); }
+.nav__mark {
+  font-weight: 600; font-size: 15px; letter-spacing: -.012em;
+  color: var(--ink); margin-right: auto; white-space: nowrap;
+}
+.nav__mark:hover { color: var(--ink); }
+
+.nav__links { display: flex; align-items: center; gap: 26px; }
+
+.nav__link {
+  font-size: 12.5px; color: var(--ink-soft);
+  transition: color .2s ease;
+}
 .nav__link:hover { color: var(--ink); }
-@media (max-width: 780px) { .nav__link { display: none; } }
+/* Scroll spy: the bar reports which section you are actually in. */
+.nav__link.is-active { color: var(--ink); }
+
+.burger { display: none; }
+.nav__scrim { display: none; }
+
+/* ---------- below 900px the bar collapses to a hamburger ---------- */
+@media (max-width: 900px) {
+  .burger {
+    display: grid; place-items: center;
+    width: 40px; height: 40px; margin-right: -9px;
+    background: none; border: 0; cursor: pointer; padding: 0;
+    -webkit-tap-highlight-color: transparent;
+  }
+  /* Two lines that rotate into an X, the way Apple's does. */
+  .burger__box { position: relative; width: 17px; height: 12px; display: block; }
+  .burger__l {
+    position: absolute; left: 0; width: 17px; height: 1.5px; border-radius: 2px;
+    background: var(--ink);
+    transition: transform .34s cubic-bezier(.4,.01,.16,1), top .28s ease .1s;
+  }
+  .burger__l:nth-child(1) { top: 3px; }
+  .burger__l:nth-child(2) { top: 8px; }
+  .nav.is-open .burger__l { transition: transform .34s cubic-bezier(.4,.01,.16,1), top .2s ease; }
+  .nav.is-open .burger__l:nth-child(1) { top: 5.5px; transform: rotate(45deg); }
+  .nav.is-open .burger__l:nth-child(2) { top: 5.5px; transform: rotate(-45deg); }
+
+  .nav__links {
+    position: absolute; top: 48px; left: 0; right: 0;
+    flex-direction: column; align-items: stretch; gap: 0;
+    padding: 6px 22px 22px;
+    background: var(--menu-bg);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    backdrop-filter: saturate(180%) blur(20px);
+    border-bottom: 1px solid var(--hairline);
+    box-shadow: 0 18px 40px rgba(0,0,0,.16);
+    max-height: calc(100vh - 48px); overflow-y: auto;
+    z-index: 1;
+    opacity: 0; visibility: hidden; transform: translateY(-10px);
+    transition: opacity .3s ease, transform .3s cubic-bezier(.2,.7,.3,1), visibility .3s;
+  }
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .nav__links { background: var(--ground); }
+  }
+  .nav.is-open .nav__links { opacity: 1; visibility: visible; transform: none; }
+
+  .nav__link {
+    font-size: 17px; letter-spacing: -.015em;
+    padding: 14px 2px; border-bottom: 1px solid var(--hairline-2);
+    /* Staggered reveal — each link a beat behind the last. */
+    opacity: 0; transform: translateY(-6px);
+    transition: opacity .32s ease, transform .32s cubic-bezier(.2,.7,.3,1), color .2s ease;
+  }
+  .nav__link:last-child { border-bottom: 0; }
+  .nav.is-open .nav__link { opacity: 1; transform: none; }
+  .nav.is-open .nav__link:nth-child(1) { transition-delay: .04s; }
+  .nav.is-open .nav__link:nth-child(2) { transition-delay: .07s; }
+  .nav.is-open .nav__link:nth-child(3) { transition-delay: .10s; }
+  .nav.is-open .nav__link:nth-child(4) { transition-delay: .13s; }
+  .nav.is-open .nav__link:nth-child(5) { transition-delay: .16s; }
+  .nav.is-open .nav__link:nth-child(6) { transition-delay: .19s; }
+  .nav.is-open .nav__link:nth-child(7) { transition-delay: .22s; }
+  .nav.is-open .nav__link:nth-child(8) { transition-delay: .25s; }
+  .nav.is-open .nav__link:nth-child(9) { transition-delay: .28s; }
+  .nav__link.is-active { color: var(--accent); }
+
+  /* Dims the page behind the panel and gives an easy target to dismiss on. */
+  .nav__scrim {
+    display: block; position: fixed; inset: 48px 0 0 0;
+    z-index: 55;                      /* under the bar (60), over the page */
+    background: rgba(0,0,0,.32);
+    opacity: 0; visibility: hidden;
+    transition: opacity .3s ease, visibility .3s;
+  }
+  .nav.is-open ~ .nav__scrim { opacity: 1; visibility: visible; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .burger__l, .nav__links, .nav__link, .nav__scrim { transition: none !important; }
+  .nav.is-open .nav__link { transition-delay: 0s !important; }
+}
 
 /* ============================================================ Type */
 .eyebrow {
@@ -594,22 +687,37 @@ a.path__row:hover { transform: translateY(-2px); box-shadow: var(--shadow-lift);
 }
 </style>
 
-<nav class="nav">
+<nav class="nav" id="nav">
   <div class="nav__inner">
-    <span class="nav__mark">AI Builder's Toolbox</span>
-    <a class="nav__link" href="#play">Be the model</a>
-    <a class="nav__link" href="#workbench">Workbench</a>
-    <a class="nav__link" href="#audit">Audit bench</a>
-    <a class="nav__link" href="#path">Start here</a>
-    <a class="nav__link" href="#learn">Learn to code</a>
-    <a class="nav__link" href="#ai">Build with AI</a>
-    <a class="nav__link" href="#tools">Tools</a>
-    <a class="nav__link" href="#build">How it was built</a>
-    <a class="nav__link" href="#project">The project</a>
+    <a class="nav__mark" href="#top">AI Builder&#39;s Toolbox</a>
+
+    <!-- One list, not two. At mobile width the same element becomes the
+         drop-down panel, so there is a single source of truth for the
+         links and the scroll-spy has one set of nodes to update. -->
+    <div class="nav__links" id="navMenu">
+      <a class="nav__link" href="#play">Be the model</a>
+      <a class="nav__link" href="#workbench">Workbench</a>
+      <a class="nav__link" href="#audit">Audit bench</a>
+      <a class="nav__link" href="#path">Start here</a>
+      <a class="nav__link" href="#learn">Learn to code</a>
+      <a class="nav__link" href="#ai">Build with AI</a>
+      <a class="nav__link" href="#tools">Tools</a>
+      <a class="nav__link" href="#build">How it was built</a>
+      <a class="nav__link" href="#project">The project</a>
+    </div>
+
+    <button class="burger" id="burger" type="button"
+            aria-expanded="false" aria-controls="navMenu" aria-label="Open menu">
+      <span class="burger__box"><span class="burger__l"></span><span class="burger__l"></span></span>
+    </button>
   </div>
 </nav>
+<!-- Outside <nav> deliberately: .nav sets backdrop-filter, which makes it
+     the containing block for fixed-position children — inside it, this
+     scrim resolved to zero height and never dimmed anything. -->
+<div class="nav__scrim" id="navScrim" aria-hidden="true"></div>
 
-<header class="band hero">
+<header class="band hero" id="top">
   <div class="wrap">
     <h1 class="display">Sit in the<br>model's seat.</h1>
     <p class="lead">Play the agent loop by hand and watch the API payload grow as you go. Then follow a curated route from your first line of code to automation that runs without you. Every link opens the real thing.</p>
@@ -2259,6 +2367,111 @@ Rules:
       else done();
     });
     runHarden();
+  }
+})();
+</script>
+
+
+<script>
+/* ============================================================
+   The banner: hamburger menu + scroll spy.
+   ============================================================ */
+(function () {
+  var nav    = document.getElementById("nav");
+  var burger = document.getElementById("burger");
+  var menu   = document.getElementById("navMenu");
+  var scrim  = document.getElementById("navScrim");
+  if (!nav || !burger || !menu) return;
+
+  var links = Array.prototype.slice.call(menu.querySelectorAll(".nav__link"));
+  var MOBILE = "(max-width: 900px)";
+
+  /* ---------------- open / close ---------------- */
+  function isOpen() { return nav.classList.contains("is-open"); }
+
+  function open() {
+    nav.classList.add("is-open");
+    burger.setAttribute("aria-expanded", "true");
+    burger.setAttribute("aria-label", "Close menu");
+  }
+
+  function close(returnFocus) {
+    if (!isOpen()) return;
+    nav.classList.remove("is-open");
+    burger.setAttribute("aria-expanded", "false");
+    burger.setAttribute("aria-label", "Open menu");
+    if (returnFocus) burger.focus();
+  }
+
+  burger.addEventListener("click", function () { isOpen() ? close(false) : open(); });
+  if (scrim) scrim.addEventListener("click", function () { close(false); });
+
+  // Following a link should dismiss the panel, or you land on the section
+  // with the menu still covering it.
+  links.forEach(function (a) { a.addEventListener("click", function () { close(false); }); });
+
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && isOpen()) close(true);
+  });
+
+  // Keep focus inside the panel while it is open — otherwise Tab walks off
+  // into the page behind it, which is invisible to a keyboard user.
+  nav.addEventListener("keydown", function (e) {
+    if (e.key !== "Tab" || !isOpen()) return;
+    // Query in document order rather than assembling the list by hand: the
+    // wordmark is a link too, and the burger sits *after* the panel in the
+    // DOM, so a hand-built [burger, ...links] wrapped at the wrong element
+    // and let Tab walk out into the page behind the menu.
+    var focusables = Array.prototype.slice
+      .call(nav.querySelectorAll("a[href], button:not([disabled])"))
+      .filter(function (el) { return el.offsetParent !== null; });
+    if (!focusables.length) return;
+    var first = focusables[0], last = focusables[focusables.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  });
+
+  // Rotating a phone can cross the breakpoint. Leaving `is-open` set would
+  // strand the desktop bar in a state its styles never account for.
+  var mq = window.matchMedia(MOBILE);
+  var onChange = function (e) { if (!e.matches) close(false); };
+  if (mq.addEventListener) mq.addEventListener("change", onChange);
+  else if (mq.addListener) mq.addListener(onChange);
+
+  /* ---------------- scroll spy ---------------- */
+  // Which section are you actually in? The bar should say so.
+  var targets = links
+    .map(function (a) {
+      var id = a.getAttribute("href");
+      var el = id && id.charAt(0) === "#" ? document.querySelector(id) : null;
+      return el ? { link: a, el: el } : null;
+    })
+    .filter(Boolean);
+
+  function markActive(el) {
+    targets.forEach(function (t) { t.link.classList.toggle("is-active", t.el === el); });
+  }
+
+  if ("IntersectionObserver" in window && targets.length) {
+    var visible = {};
+    var spy = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        visible[e.target.id] = e.isIntersecting ? e.intersectionRatio : 0;
+      });
+      // Whichever tracked section occupies the most of the viewport wins.
+      var best = null, bestRatio = 0;
+      targets.forEach(function (t) {
+        var r = visible[t.el.id] || 0;
+        if (r > bestRatio) { bestRatio = r; best = t.el; }
+      });
+      markActive(bestRatio > 0 ? best : null);
+    }, {
+      // Discount the sticky bar so a section doesn't read as "current"
+      // while it is still hidden behind it.
+      rootMargin: "-48px 0px -55% 0px",
+      threshold: [0, 0.1, 0.25, 0.5, 0.75, 1]
+    });
+    targets.forEach(function (t) { spy.observe(t.el); });
   }
 })();
 </script>
