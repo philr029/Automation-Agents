@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Play the AI agent loop by hand, then follow a curated route from your first line of code to automation that runs without you.">
+<meta name="description" content="Play the AI agent loop by hand, use four browser tools that run the framework's real logic, and follow a curated route from your first line of code to shipped automation.">
 <meta name="color-scheme" content="light dark">
 <meta property="og:title" content="AI Builder's Toolbox">
 <meta property="og:description" content="Sit in the model's seat. Play the agent loop by hand and watch the API payload grow.">
@@ -369,6 +369,137 @@ a.path__row:hover { transform: translateY(-2px); box-shadow: var(--shadow-lift);
 }
 .score--hit { border-color: var(--accent); color: var(--accent); background: var(--accent-wash); }
 
+
+/* ============================================================
+   Workbench — the tabbed tools
+   ============================================================ */
+.tabs {
+  display: flex; flex-wrap: wrap; gap: 6px; margin-top: 42px;
+  border-bottom: 1px solid var(--hairline); padding-bottom: 14px;
+}
+.tab {
+  cursor: pointer; font-size: 13.5px; font-weight: 500;
+  color: var(--ink-soft); background: none; border: 1px solid transparent;
+  border-radius: 980px; padding: 8px 16px;
+  transition: color .2s ease, background-color .2s ease, border-color .2s ease;
+}
+.tab:hover { color: var(--ink); }
+.tab[aria-selected="true"] { color: var(--accent); background: var(--accent-wash); border-color: var(--accent); }
+
+.panel { display: none; margin-top: 30px; }
+.panel[data-open="true"] { display: block; }
+
+.panel__intro { font-size: 15px; color: var(--ink-soft); line-height: 1.6; max-width: 68ch; margin-bottom: 22px; }
+.panel__intro strong { color: var(--ink); font-weight: 600; }
+
+.work {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 1px;
+  background: var(--hairline); border: 1px solid var(--hairline);
+  border-radius: var(--r-lg); overflow: hidden; box-shadow: var(--shadow-lift);
+}
+@media (max-width: 900px) { .work { grid-template-columns: 1fr; } }
+.work__in  { background: var(--surface);  padding: 24px 22px 26px; min-width: 0; }
+.work__out { background: var(--code-bg); padding: 24px 22px 26px; min-width: 0; }
+
+.work__label {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 11px; letter-spacing: .07em; text-transform: uppercase;
+  display: block; margin-bottom: 12px;
+}
+.work__in  .work__label { color: var(--ink-faint); }
+.work__out .work__label { color: var(--code-dim); }
+
+.field { display: block; margin-bottom: 16px; }
+.field__k { display: block; font-size: 12.5px; color: var(--ink-soft); margin-bottom: 6px; }
+
+.input, .area {
+  width: 100%; font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12.5px; line-height: 1.7;
+  color: var(--ink); background: var(--surface-2);
+  border: 1px solid var(--hairline); border-radius: var(--r-sm);
+  padding: 11px 13px; resize: vertical;
+}
+.input:focus, .area:focus { outline: none; border-color: var(--accent); }
+.area { min-height: 210px; }
+.input--text { font-family: Inter, sans-serif; font-size: 14px; }
+
+.out {
+  margin: 0; font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11.5px; line-height: 1.75; color: var(--code-ink);
+  overflow-x: auto; max-height: 420px; overflow-y: auto; white-space: pre;
+}
+.out::-webkit-scrollbar { width: 8px; height: 8px; }
+.out::-webkit-scrollbar-thumb { background: rgba(255,255,255,.18); border-radius: 4px; }
+
+.chips { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 14px; }
+.chip-btn {
+  cursor: pointer; font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 11.5px; color: var(--ink-soft); background: var(--surface-2);
+  border: 1px solid var(--hairline); border-radius: 980px; padding: 5px 11px;
+  transition: border-color .2s ease, color .2s ease;
+}
+.chip-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+.verdict {
+  display: flex; align-items: center; gap: 10px;
+  border-radius: var(--r-sm); padding: 13px 15px; margin-bottom: 14px;
+  font-size: 14.5px; border: 1px solid var(--hairline); background: var(--surface-2);
+}
+.verdict__tag {
+  font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 11px;
+  font-weight: 700; letter-spacing: .06em; padding: 3px 9px; border-radius: 980px; flex: none;
+}
+.verdict--ok  { border-color: rgba(48,209,88,.45); }
+.verdict--ok  .verdict__tag { background: rgba(48,209,88,.16); color: #248a3d; }
+.verdict--no  { border-color: rgba(255,69,58,.45); }
+.verdict--no  .verdict__tag { background: rgba(255,69,58,.16); color: #d70015; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .verdict--ok .verdict__tag { color: #30d158; }
+  :root:not([data-theme="light"]) .verdict--no .verdict__tag { color: #ff453a; }
+}
+:root[data-theme="dark"] .verdict--ok .verdict__tag { color: #30d158; }
+:root[data-theme="dark"] .verdict--no .verdict__tag { color: #ff453a; }
+
+.checks { display: grid; gap: 8px; }
+.check { display: flex; gap: 9px; align-items: flex-start; font-size: 13px; color: var(--ink-soft); line-height: 1.5; }
+.check__m { font-family: "JetBrains Mono", monospace; flex: none; width: 14px; }
+
+.toolpick { display: grid; gap: 7px; }
+.pick { display: flex; gap: 9px; align-items: flex-start; font-size: 13.5px; color: var(--ink); cursor: pointer; }
+.pick input { margin: 3px 0 0; accent-color: var(--accent); flex: none; }
+.pick span em { font-style: normal; color: var(--ink-faint); font-size: 12.5px; display: block; }
+
+.copy {
+  margin-top: 14px; cursor: pointer; font-size: 12.5px; font-weight: 500;
+  color: var(--accent); background: var(--accent-wash);
+  border: 1px solid var(--accent); border-radius: 980px; padding: 6px 15px;
+}
+.copy:hover { background: var(--accent); color: #fff; }
+
+.readout { display: grid; gap: 12px; }
+.ro { display: flex; justify-content: space-between; align-items: baseline; gap: 14px;
+      border-bottom: 1px solid rgba(255,255,255,.09); padding-bottom: 10px; }
+.ro__k { font-size: 12.5px; color: var(--code-dim); }
+.ro__v { font-family: "JetBrains Mono", monospace; font-size: 15px; color: var(--code-ink); font-variant-numeric: tabular-nums; }
+.ro__v--big { font-size: 22px; font-weight: 500; }
+
+/* ============================================================
+   Portfolio / case study
+   ============================================================ */
+.case { margin-top: 46px; display: grid; gap: 1px; background: var(--hairline);
+        border: 1px solid var(--hairline); border-radius: var(--r-md); overflow: hidden; }
+.case__row { background: var(--surface); display: grid; grid-template-columns: 210px 1fr; gap: 24px; padding: 24px 26px; }
+@media (max-width: 760px) { .case__row { grid-template-columns: 1fr; gap: 8px; } }
+.case__k { font-size: 14.5px; font-weight: 600; color: var(--ink); letter-spacing: -.01em; }
+.case__v { font-size: 14.5px; color: var(--ink-soft); line-height: 1.65; }
+.case__v code { font-family: "JetBrains Mono", monospace; font-size: 12.5px;
+                background: var(--ground-alt); border: 1px solid var(--hairline);
+                padding: 1px 6px; border-radius: 5px; color: var(--ink); }
+
+.skills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 34px; }
+.skill { font-size: 13px; color: var(--ink); background: var(--surface);
+         border: 1px solid var(--hairline); border-radius: 980px; padding: 7px 15px; }
+
 /* ============================================================ Reveal */
 .reveal { opacity: 0; transform: translateY(18px); transition: opacity .6s ease, transform .6s cubic-bezier(.2,.7,.3,1); }
 .reveal.in { opacity: 1; transform: none; }
@@ -383,10 +514,12 @@ a.path__row:hover { transform: translateY(-2px); box-shadow: var(--shadow-lift);
   <div class="nav__inner">
     <span class="nav__mark">AI Builder's Toolbox</span>
     <a class="nav__link" href="#play">Be the model</a>
+    <a class="nav__link" href="#workbench">Workbench</a>
     <a class="nav__link" href="#path">Start here</a>
     <a class="nav__link" href="#learn">Learn to code</a>
     <a class="nav__link" href="#ai">Build with AI</a>
     <a class="nav__link" href="#tools">Tools</a>
+    <a class="nav__link" href="#build">How it was built</a>
     <a class="nav__link" href="#project">The project</a>
   </div>
 </nav>
@@ -408,8 +541,8 @@ a.path__row:hover { transform: translateY(-2px); box-shadow: var(--shadow-lift);
       </div>
       <div class="strip__cell">
         <span class="strip__k">02</span>
-        <h3 class="h3">Build with AI</h3>
-        <p>The docs and playgrounds worth your time.</p>
+        <h3 class="h3">Use the workbench</h3>
+        <p>Four tools that run the real logic in your browser.</p>
       </div>
       <div class="strip__cell">
         <span class="strip__k">03</span>
@@ -425,7 +558,7 @@ a.path__row:hover { transform: translateY(-2px); box-shadow: var(--shadow-lift);
   </div>
 </header>
 
-<section class="band section" id="play">
+<section class="band band--alt section" id="play">
   <div class="wrap">
     <p class="eyebrow">Try it — nothing to install</p>
     <h2 class="h2">You be the model.</h2>
@@ -464,6 +597,156 @@ a.path__row:hover { transform: translateY(-2px); box-shadow: var(--shadow-lift);
     </div>
 
     <p class="note" style="margin-top:24px">Nothing here calls a model or needs a key — the tool results are canned so the loop is the only thing on show.</p>
+  </div>
+</section>
+
+
+<section class="band section" id="workbench">
+  <div class="wrap">
+    <p class="eyebrow">The workbench</p>
+    <h2 class="h2">Four tools that<br>do real work.</h2>
+    <p class="lead" style="margin-top:16px">Each one runs entirely in your browser and does the same job as a piece of the framework — so you can see the engineering rather than read about it.</p>
+
+    <div class="tabs" role="tablist" aria-label="Workbench tools">
+      <button class="tab" role="tab" id="tab-schema"  aria-controls="p-schema"  aria-selected="true"  type="button">Schema Builder</button>
+      <button class="tab" role="tab" id="tab-sandbox" aria-controls="p-sandbox" aria-selected="false" type="button">Sandbox Tester</button>
+      <button class="tab" role="tab" id="tab-agent"   aria-controls="p-agent"   aria-selected="false" type="button">Agent Builder</button>
+      <button class="tab" role="tab" id="tab-cost"    aria-controls="p-cost"    aria-selected="false" type="button">Run Estimator</button>
+    </div>
+
+    <!-- ---------------- Schema Builder ---------------- -->
+    <div class="panel" id="p-schema" role="tabpanel" aria-labelledby="tab-schema" data-open="true">
+      <p class="panel__intro">Models can't read Python. They need every tool described as JSON Schema — and hand-writing that schema means it silently drifts out of sync the moment you change a signature. So the framework <strong>derives it</strong> from your type hints and docstring. Edit the function and watch the schema follow.</p>
+      <div class="work">
+        <div class="work__in">
+          <span class="work__label">Python — a decorated tool</span>
+          <textarea class="area" id="schemaIn" spellcheck="false" aria-label="Python function"></textarea>
+          <div class="chips" style="margin-top:14px">
+            <button class="chip-btn" type="button" data-schema="file">read_file</button>
+            <button class="chip-btn" type="button" data-schema="csv">write_csv</button>
+            <button class="chip-btn" type="button" data-schema="web">check_for_changes</button>
+          </div>
+        </div>
+        <div class="work__out">
+          <span class="work__label">Generated input_schema</span>
+          <pre class="out" id="schemaOut"></pre>
+        </div>
+      </div>
+      <p class="note" style="margin-top:18px" id="schemaNote"></p>
+    </div>
+
+    <!-- ---------------- Sandbox Tester ---------------- -->
+    <div class="panel" id="p-sandbox" role="tabpanel" aria-labelledby="tab-sandbox">
+      <p class="panel__intro">An agent that can write files can also destroy them. Every path a model asks for is resolved first — collapsing <code>..</code> and following symlinks — and then checked by path <strong>components</strong>, not string prefix. Try to get out.</p>
+      <div class="work">
+        <div class="work__in">
+          <span class="work__label">Path the model asked for</span>
+          <div class="chips">
+            <button class="chip-btn" type="button" data-path="notes/today.md">notes/today.md</button>
+            <button class="chip-btn" type="button" data-path="../../etc/passwd">../../etc/passwd</button>
+            <button class="chip-btn" type="button" data-path="/etc/passwd">/etc/passwd</button>
+            <button class="chip-btn" type="button" data-path="a/b/../../notes.md">a/b/../../notes.md</button>
+            <button class="chip-btn" type="button" data-path="/home/you/workspace-evil/x">workspace-evil/x</button>
+            <button class="chip-btn" type="button" data-path="~/secrets.txt">~/secrets.txt</button>
+          </div>
+          <label class="field">
+            <span class="field__k">Workspace root (fixed by your config — the model never sees it)</span>
+            <input class="input" id="sbRoot" value="/home/you/workspace" readonly aria-label="Workspace root">
+          </label>
+          <label class="field">
+            <span class="field__k">Requested path</span>
+            <input class="input" id="sbPath" value="notes/today.md" spellcheck="false" aria-label="Requested path">
+          </label>
+          <div class="checks" id="sbChecks"></div>
+        </div>
+        <div class="work__out">
+          <span class="work__label">Verdict</span>
+          <div id="sbVerdict"></div>
+          <pre class="out" id="sbOut"></pre>
+        </div>
+      </div>
+      <p class="note" style="margin-top:18px">The subtle one is <code>workspace-evil</code>. A <code>startswith("/home/you/workspace")</code> check passes it — which is why the real code uses <code>Path.relative_to</code>, comparing components instead of characters. There's a test named for exactly that case.</p>
+    </div>
+
+    <!-- ---------------- Agent Builder ---------------- -->
+    <div class="panel" id="p-agent" role="tabpanel" aria-labelledby="tab-agent">
+      <p class="panel__intro">Agents in this framework aren't classes — they're <strong>data</strong>. A name, a prompt, and a list of toolkits. Compose one here and copy out Python that drops straight into <code>agents/library.py</code> and appears in <code>--list</code> immediately.</p>
+      <div class="work">
+        <div class="work__in">
+          <label class="field">
+            <span class="field__k">Agent name (used on the command line)</span>
+            <input class="input" id="abName" value="invoice-chaser" spellcheck="false" aria-label="Agent name">
+          </label>
+          <label class="field">
+            <span class="field__k">One-line summary</span>
+            <input class="input input--text" id="abSummary" value="Find overdue invoices and draft chase emails." aria-label="Summary">
+          </label>
+          <span class="field__k">Toolkits it may use</span>
+          <div class="toolpick" id="abTools"></div>
+          <label class="field" style="margin-top:16px">
+            <span class="field__k">Instructions — the method, then the rules</span>
+            <textarea class="area" id="abInstr" style="min-height:150px" aria-label="Instructions">You chase overdue invoices.
+
+Method:
+1. Read every invoice in the workspace.
+2. Work out which are past their due date.
+3. Draft a short, polite chase email for each.
+
+Rules:
+- Never invent an amount or a date. If it isn't in the document, say so.
+- Keep the tone neutral. These are customers, not debtors.
+- One email per invoice, saved as its own file.</textarea>
+          </label>
+        </div>
+        <div class="work__out">
+          <span class="work__label">Paste into agents/library.py</span>
+          <pre class="out" id="abOut"></pre>
+          <button class="copy" id="abCopy" type="button">Copy code</button>
+        </div>
+      </div>
+      <p class="note" style="margin-top:18px" id="abNote"></p>
+    </div>
+
+    <!-- ---------------- Run Estimator ---------------- -->
+    <div class="panel" id="p-cost" role="tabpanel" aria-labelledby="tab-cost">
+      <p class="panel__intro">Agent runs cost more than people expect, because <strong>the whole conversation is re-sent on every turn</strong>. Ten turns doesn't cost ten times one turn — it costs roughly the triangular sum. This models that growth.</p>
+      <div class="work">
+        <div class="work__in">
+          <label class="field">
+            <span class="field__k">Turns in the run (each is one model call)</span>
+            <input class="input" id="ceTurns" type="number" min="1" max="200" value="8" aria-label="Turns">
+          </label>
+          <label class="field">
+            <span class="field__k">Prompt tokens on the first turn (system + task + tool schemas)</span>
+            <input class="input" id="ceBase" type="number" min="0" step="100" value="1800" aria-label="Base tokens">
+          </label>
+          <label class="field">
+            <span class="field__k">Tokens added per turn (the tool call plus its result)</span>
+            <input class="input" id="ceGrow" type="number" min="0" step="50" value="700" aria-label="Growth per turn">
+          </label>
+          <label class="field">
+            <span class="field__k">Output tokens per turn</span>
+            <input class="input" id="ceOut" type="number" min="0" step="50" value="300" aria-label="Output per turn">
+          </label>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <label class="field" style="margin:0">
+              <span class="field__k">Input $ / Mtok</span>
+              <input class="input" id="ceIn$" type="number" min="0" step="0.5" value="3" aria-label="Input price">
+            </label>
+            <label class="field" style="margin:0">
+              <span class="field__k">Output $ / Mtok</span>
+              <input class="input" id="ceOut$" type="number" min="0" step="0.5" value="15" aria-label="Output price">
+            </label>
+          </div>
+          <p class="note" style="margin-top:6px">Defaults match the rate <code>AgentResult.estimated_cost_usd</code> assumes in this project. Check current pricing before you trust a number.</p>
+        </div>
+        <div class="work__out">
+          <span class="work__label">Estimate</span>
+          <div class="readout" id="ceOutPane"></div>
+        </div>
+      </div>
+      <p class="note" style="margin-top:18px" id="ceNote"></p>
+    </div>
   </div>
 </section>
 
@@ -713,6 +996,59 @@ a.path__row:hover { transform: translateY(-2px); box-shadow: var(--shadow-lift);
   </div>
 </section>
 
+
+<section class="band section" id="build">
+  <div class="wrap">
+    <p class="eyebrow">How it was built</p>
+    <h2 class="h2">The decisions,<br>and what they cost.</h2>
+    <p class="lead" style="margin-top:16px">Every tool on this page mirrors something in the codebase. Here's the reasoning behind each, including the parts that went wrong.</p>
+
+    <div class="case reveal">
+      <div class="case__row">
+        <div class="case__k">Schemas are derived, not written</div>
+        <div class="case__v">A hand-written JSON Schema drifts the moment you change a function signature, and the failure is silent — the model keeps sending an argument that no longer exists. So <code>@tool</code> reads the type hints and docstring and generates the schema. One source of truth, and the Schema Builder above runs the same rules.</div>
+      </div>
+      <div class="case__row">
+        <div class="case__k">Capabilities are injected, never exposed</div>
+        <div class="case__v">Every file tool needs to know where the sandbox is, and the model must never get to choose it. <code>ToolRegistry.bind()</code> fills <code>config</code> in before the call while the schema the model sees stays unchanged — there's a test asserting exactly that. The same pattern keeps webhook URLs out of reach: an agent picks a destination <em>name</em>, and the environment supplies the URL.</div>
+      </div>
+      <div class="case__row">
+        <div class="case__k">Errors go to the model, not the stack</div>
+        <div class="case__v">A tool that raises kills the run. A tool that returns its error becomes feedback the model reads and corrects on the next turn. Bad path, wrong argument type, sandbox violation — all come back as <code>tool_result</code> with <code>is_error: true</code>, and the run survives.</div>
+      </div>
+      <div class="case__row">
+        <div class="case__k">The sandbox compares components</div>
+        <div class="case__v">Paths are resolved before they're checked, which closes <code>..</code> and symlinks together. Then <code>Path.relative_to</code> compares components rather than characters — because <code>"/work-evil".startswith("/work")</code> is <code>True</code>, and a prefix check would have let it through. Try it in the Sandbox Tester.</div>
+      </div>
+      <div class="case__row">
+        <div class="case__k">A bug that only existed on macOS</div>
+        <div class="case__v">The file tools crashed on a Mac and worked on Linux. On macOS <code>/tmp</code> is a symlink to <code>/private/tmp</code>, and the config stored the workspace unresolved while the safety layer always resolved it — two strings for one directory, so <code>relative_to</code> raised. The fix was to normalise once, <em>after</em> applying overrides; normalising before had left every <code>--workspace</code> flag unnormalised. CI now runs macOS and Windows, and a test builds a symlinked workspace explicitly so it can't come back.</div>
+      </div>
+      <div class="case__row">
+        <div class="case__k">Tests that cost nothing to run</div>
+        <div class="case__v">49 tests, no network and no API key. The agent loop is tested against a scripted fake client, which covers the multi-turn path, error recovery, token accounting and the step ceiling. The whole suite runs in under a tenth of a second, so there's no reason to skip it.</div>
+      </div>
+    </div>
+
+    <div class="skills">
+      <span class="skill">Python 3.11+</span>
+      <span class="skill">LLM tool calling</span>
+      <span class="skill">Agent loop design</span>
+      <span class="skill">API integration</span>
+      <span class="skill">Introspection &amp; metaprogramming</span>
+      <span class="skill">Security boundaries</span>
+      <span class="skill">Dependency injection</span>
+      <span class="skill">Cross-platform engineering</span>
+      <span class="skill">Unit testing &amp; fakes</span>
+      <span class="skill">CI / GitHub Actions</span>
+      <span class="skill">CLI design</span>
+      <span class="skill">Front-end (vanilla JS)</span>
+      <span class="skill">Accessible UI</span>
+      <span class="skill">Technical writing</span>
+    </div>
+  </div>
+</section>
+
 <footer class="footer">
   <div class="wrap">
     <p class="note">AI Builder's Toolbox — a curated route from first line of code to shipped automation.</p>
@@ -932,6 +1268,368 @@ a.path__row:hover { transform: translateY(-2px); box-shadow: var(--shadow-lift);
 
   resetEl.addEventListener("click", reset);
   reset();
+})();
+</script>
+
+
+<script>
+/* ============================================================
+   The workbench. Four tools, no backend, no dependencies.
+   Two of them (Schema Builder, Sandbox Tester) reimplement the
+   framework's real logic in JS so the page demonstrates the
+   engineering rather than describing it.
+   ============================================================ */
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  function esc(t) {
+    return String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+  function colorJson(text) {
+    return esc(text)
+      .replace(/&quot;([^&]*?)&quot;(\s*:)/g, '<span class="j-key">"$1"</span>$2')
+      .replace(/:\s*&quot;((?:[^&]|&(?!quot;))*)&quot;/g, ': <span class="j-str">"$1"</span>')
+      .replace(/:\s*(true|false|null)/g, ': <span class="j-num">$1</span>')
+      .replace(/:\s*(\d+)/g, ': <span class="j-num">$1</span>');
+  }
+
+  /* ---------- Tabs ---------- */
+  var tabs = Array.prototype.slice.call(document.querySelectorAll(".tab"));
+  tabs.forEach(function (tab) {
+    tab.addEventListener("click", function () { select(tab); });
+    tab.addEventListener("keydown", function (e) {
+      var i = tabs.indexOf(tab);
+      if (e.key === "ArrowRight") { select(tabs[(i + 1) % tabs.length]); tabs[(i + 1) % tabs.length].focus(); }
+      if (e.key === "ArrowLeft")  { select(tabs[(i - 1 + tabs.length) % tabs.length]); tabs[(i - 1 + tabs.length) % tabs.length].focus(); }
+    });
+  });
+  function select(tab) {
+    tabs.forEach(function (t) {
+      var open = t === tab;
+      t.setAttribute("aria-selected", open ? "true" : "false");
+      $(t.getAttribute("aria-controls")).setAttribute("data-open", open ? "true" : "false");
+    });
+  }
+
+  /* ============================================================
+     1. Schema Builder — the @tool decorator, in the browser.
+     ============================================================ */
+  var SAMPLES = {
+    file: '@tool\ndef read_file(config: Config, path: str, max_chars: int = 20000) -> str:\n    """Read a text file from the workspace.\n\n    path: file to read, relative to the workspace root\n    max_chars: truncate after this many characters\n    """',
+    csv:  '@tool\ndef write_csv(config: Config, path: str, headers: list[str], rows: list) -> str:\n    """Write rows to a CSV a human can open.\n\n    path: destination CSV, relative to the workspace root\n    headers: the column names, in order\n    rows: a list of rows matching the headers\n    """',
+    web:  '@tool\ndef check_for_changes(config: Config, url: str, label: str) -> str:\n    """Compare a page against the last check and report if it changed.\n\n    url: page to monitor\n    label: short name used to store the snapshot between runs\n    """'
+  };
+
+  var TYPES = { str: "string", int: "integer", float: "number", bool: "boolean", list: "array", dict: "object" };
+
+  function jsonType(hint) {
+    if (!hint) return {};
+    hint = hint.trim();
+    // `str | None` / `Optional[str]` -> describe the inner type. Optionality
+    // is expressed by omission from `required`, never by the type itself.
+    var opt = hint.match(/^Optional\[(.+)\]$/);
+    if (opt) return jsonType(opt[1]);
+    if (hint.indexOf("|") > -1) {
+      var parts = hint.split("|").map(function (x) { return x.trim(); })
+                      .filter(function (x) { return x !== "None"; });
+      return parts.length === 1 ? jsonType(parts[0]) : {};
+    }
+    var arr = hint.match(/^(?:list|List|set|tuple)\[(.+)\]$/);
+    if (arr) return { type: "array", items: jsonType(arr[1]).type ? jsonType(arr[1]) : { type: "string" } };
+    if (/^(list|List)$/.test(hint)) return { type: "array", items: { type: "string" } };
+    if (/^(dict|Dict)/.test(hint)) return { type: "object" };
+    return { type: TYPES[hint] || "string" };
+  }
+
+  function splitArgs(raw) {
+    // Split on commas that aren't inside brackets, so list[str] survives.
+    var out = [], depth = 0, cur = "";
+    for (var i = 0; i < raw.length; i++) {
+      var c = raw[i];
+      if (c === "[" || c === "(") depth++;
+      if (c === "]" || c === ")") depth--;
+      if (c === "," && depth === 0) { out.push(cur); cur = ""; } else cur += c;
+    }
+    if (cur.trim()) out.push(cur);
+    return out.map(function (x) { return x.trim(); }).filter(Boolean);
+  }
+
+  function buildSchema(src) {
+    var m = src.match(/def\s+(\w+)\s*\(([\s\S]*?)\)\s*(?:->[^:]*)?:/);
+    if (!m) return { error: "No `def name(...)` found. Paste a Python function." };
+
+    var name = m[1];
+    var args = splitArgs(m[2]);
+
+    var doc = src.match(/"""([\s\S]*?)"""/);
+    var summary = "", paramDocs = {};
+    var argNames = args.map(function (a) { return a.split(/[:=]/)[0].trim(); });
+
+    if (doc) {
+      var lines = doc[1].split("\n"), summaryLines = [], seen = false;
+      lines.forEach(function (line) {
+        var pm = line.match(/^\s*(\w+)\s*:\s*(.+)$/);
+        if (pm && argNames.indexOf(pm[1]) > -1) { paramDocs[pm[1]] = pm[2].trim(); seen = true; }
+        else if (!seen) summaryLines.push(line);
+      });
+      summary = summaryLines.join(" ").trim().replace(/\s+/g, " ");
+    }
+
+    var props = {}, required = [], hidden = [];
+    args.forEach(function (a) {
+      var argName = a.split(/[:=]/)[0].trim();
+      // `self` and `config` are injected by ToolRegistry.bind() — the model
+      // must never see them, or the sandbox is meaningless.
+      if (argName === "self" || argName === "config") { hidden.push(argName); return; }
+
+      var hint = "", hasDefault = a.indexOf("=") > -1;
+      var hm = a.match(/:\s*([^=]+)/);
+      if (hm) hint = hm[1].trim();
+
+      var prop = jsonType(hint);
+      if (paramDocs[argName]) prop.description = paramDocs[argName];
+      props[argName] = prop;
+      if (!hasDefault) required.push(argName);
+    });
+
+    return {
+      name: name, hidden: hidden,
+      schema: { name: name, description: summary || ("Call " + name + "."),
+                input_schema: { type: "object", properties: props, required: required } }
+    };
+  }
+
+  var schemaIn = $("schemaIn");
+  if (schemaIn) {
+    function renderSchema() {
+      var built = buildSchema(schemaIn.value);
+      if (built.error) {
+        $("schemaOut").innerHTML = '<span class="j-err">' + esc(built.error) + "</span>";
+        $("schemaNote").textContent = "";
+        return;
+      }
+      $("schemaOut").innerHTML = colorJson(JSON.stringify(built.schema, null, 2));
+      var req = built.schema.input_schema.required;
+      var all = Object.keys(built.schema.input_schema.properties);
+      $("schemaNote").innerHTML =
+        "<strong>" + all.length + "</strong> argument(s) exposed, <strong>" + req.length +
+        "</strong> required (the ones without a default). " +
+        (built.hidden.length
+          ? "<strong>" + built.hidden.join(", ") + "</strong> is hidden from the model — it's injected at bind time, which is what keeps the sandbox root out of the model's reach."
+          : "Nothing hidden — add a <code>config</code> argument to see injection at work.");
+    }
+    schemaIn.value = SAMPLES.file;
+    schemaIn.addEventListener("input", renderSchema);
+    document.querySelectorAll("[data-schema]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        schemaIn.value = SAMPLES[b.getAttribute("data-schema")];
+        renderSchema();
+      });
+    });
+    renderSchema();
+  }
+
+  /* ============================================================
+     2. Sandbox Tester — resolve_in_workspace(), in the browser.
+     ============================================================ */
+  function resolvePath(root, requested) {
+    var steps = [];
+    var p = requested.trim();
+    steps.push({ m: "1", t: "Requested: " + (p || "(empty)") });
+
+    if (p.indexOf("~") === 0) {
+      p = "/home/you" + p.slice(1);
+      steps.push({ m: "2", t: "expanduser() → " + p });
+    } else {
+      steps.push({ m: "2", t: "No ~ to expand" });
+    }
+
+    var absolute = p.charAt(0) === "/";
+    if (!absolute) {
+      p = root + "/" + p;
+      steps.push({ m: "3", t: "Relative, so joined to the root → " + p });
+    } else {
+      steps.push({ m: "3", t: "Already absolute — joining is skipped, so this alone proves nothing" });
+    }
+
+    // resolve(): collapse . and .. by components, as Path.resolve does.
+    var parts = p.split("/").filter(Boolean), stack = [];
+    parts.forEach(function (seg) {
+      if (seg === ".") return;
+      if (seg === "..") { stack.pop(); return; }
+      stack.push(seg);
+    });
+    var resolved = "/" + stack.join("/");
+    steps.push({ m: "4", t: "resolve() collapses . and .. → " + resolved });
+
+    // relative_to(): compare COMPONENTS, not characters.
+    var rootParts = root.split("/").filter(Boolean);
+    var inside = rootParts.every(function (seg, i) { return stack[i] === seg; });
+    steps.push({
+      m: "5",
+      t: inside
+        ? "relative_to() matches every root component → inside"
+        : "relative_to() fails on component " +
+          (rootParts.findIndex(function (seg, i) { return stack[i] !== seg; }) + 1) +
+          " → outside"
+    });
+
+    var prefixPasses = (resolved.indexOf(root) === 0);
+    return { resolved: resolved, inside: inside, steps: steps, prefixPasses: prefixPasses };
+  }
+
+  var sbPath = $("sbPath");
+  if (sbPath) {
+    function renderSandbox() {
+      var root = $("sbRoot").value;
+      var r = resolvePath(root, sbPath.value);
+
+      $("sbVerdict").innerHTML =
+        '<div class="verdict ' + (r.inside ? "verdict--ok" : "verdict--no") + '">' +
+        '<span class="verdict__tag">' + (r.inside ? "ALLOWED" : "BLOCKED") + "</span>" +
+        "<span>" + (r.inside
+          ? "Inside the workspace. The tool runs."
+          : "SandboxViolation — the tool never opens the file.") + "</span></div>";
+
+      var lines = [];
+      lines.push("root      " + root);
+      lines.push("requested " + sbPath.value);
+      lines.push("resolved  " + r.resolved);
+      lines.push("");
+      lines.push("inside    " + (r.inside ? "true" : "false"));
+      if (!r.inside && r.prefixPasses) {
+        lines.push("");
+        lines.push('!! startswith("' + root + '") would have returned TRUE here.');
+        lines.push("   That is the bug component-wise comparison exists to stop.");
+      }
+      $("sbOut").innerHTML = esc(lines.join("\n"))
+        .replace(/^(!!.*)$/m, '<span class="j-err">$1</span>')
+        .replace(/(true)$/m, '<span class="j-str">true</span>')
+        .replace(/(false)$/m, '<span class="j-err">false</span>');
+
+      $("sbChecks").innerHTML = r.steps.map(function (st) {
+        return '<div class="check"><span class="check__m">' + st.m + "</span><span>" + esc(st.t) + "</span></div>";
+      }).join("");
+    }
+    sbPath.addEventListener("input", renderSandbox);
+    document.querySelectorAll("[data-path]").forEach(function (b) {
+      b.addEventListener("click", function () { sbPath.value = b.getAttribute("data-path"); renderSandbox(); });
+    });
+    renderSandbox();
+  }
+
+  /* ============================================================
+     3. Agent Builder — emits a real AgentSpec.
+     ============================================================ */
+  var TOOLKITS = [
+    { id: "files",     n: 6, d: "list, read, write, move, mkdir, search" },
+    { id: "data",      n: 4, d: "read/write CSV, read JSON, append to a log" },
+    { id: "documents", n: 4, d: "PDF, Word, dispatch by extension, list" },
+    { id: "web",       n: 3, d: "fetch a page, fetch JSON, detect changes" },
+    { id: "notify",    n: 3, d: "webhook, email, save-and-notify" },
+    { id: "shell",     n: 1, d: "read-only git, eight subcommands" }
+  ];
+
+  var abTools = $("abTools");
+  if (abTools) {
+    abTools.innerHTML = TOOLKITS.map(function (t) {
+      var on = (t.id === "files" || t.id === "data" || t.id === "documents");
+      return '<label class="pick"><input type="checkbox" value="' + t.id + '"' + (on ? " checked" : "") +
+             '><span>' + t.id + " <em>" + t.d + "</em></span></label>";
+    }).join("");
+
+    function renderAgent() {
+      var name = ($("abName").value || "my-agent").trim();
+      var summary = ($("abSummary").value || "").trim();
+      var instr = $("abInstr").value.replace(/\s+$/, "");
+      var picked = Array.prototype.slice
+        .call(abTools.querySelectorAll("input:checked"))
+        .map(function (i) { return i.value; });
+
+      var count = picked.reduce(function (sum, id) {
+        var t = TOOLKITS.filter(function (x) { return x.id === id; })[0];
+        return sum + (t ? t.n : 0);
+      }, 0);
+
+      var code =
+        "register(\n" +
+        "    AgentSpec(\n" +
+        '        name="' + name + '",\n' +
+        '        summary="' + summary.replace(/"/g, '\\"') + '",\n' +
+        "        toolkits=[" + (picked.join(", ") || "files") + "],\n" +
+        '        default_task="Run ' + name + ' over the workspace.",\n' +
+        '        instructions="""\n' + instr + '\n""",\n' +
+        "    )\n" +
+        ")";
+
+      $("abOut").innerHTML = esc(code)
+        .replace(/^(register|    AgentSpec)/gm, '<span class="j-key">$1</span>')
+        .replace(/&quot;([^&\n]*)&quot;/g, '<span class="j-str">"$1"</span>');
+
+      var warn = "";
+      if (!picked.length) warn = " No toolkit selected — the agent would have nothing to do.";
+      else if (count > 14) warn = " That's a lot of tools; narrower agents make fewer wrong turns.";
+      if (picked.indexOf("notify") > -1) warn += " With notify, it can send data out — keep dry run on until you trust it.";
+
+      $("abNote").innerHTML = "<strong>" + count + "</strong> tools across <strong>" +
+        picked.length + "</strong> toolkit(s)." + warn;
+    }
+
+    ["abName", "abSummary", "abInstr"].forEach(function (id) {
+      $(id).addEventListener("input", renderAgent);
+    });
+    abTools.addEventListener("change", renderAgent);
+    $("abCopy").addEventListener("click", function () {
+      var text = $("abOut").innerText;
+      var done = function () { $("abCopy").textContent = "Copied"; setTimeout(function () { $("abCopy").textContent = "Copy code"; }, 1600); };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done, function () { $("abCopy").textContent = "Select and copy manually"; });
+      } else { done(); }
+    });
+    renderAgent();
+  }
+
+  /* ============================================================
+     4. Run Estimator — models the re-send, which is the whole point.
+     ============================================================ */
+  var ceTurns = $("ceTurns");
+  if (ceTurns) {
+    function renderCost() {
+      var turns = Math.max(1, +ceTurns.value || 1);
+      var base  = Math.max(0, +$("ceBase").value || 0);
+      var grow  = Math.max(0, +$("ceGrow").value || 0);
+      var out   = Math.max(0, +$("ceOut").value || 0);
+      var inP   = Math.max(0, +$("ceIn$").value || 0);
+      var outP  = Math.max(0, +$("ceOut$").value || 0);
+
+      // Turn n re-sends everything accumulated so far. Summing the series
+      // gives the triangular term — the reason long runs cost what they do.
+      var totalIn = 0;
+      for (var n = 0; n < turns; n++) totalIn += base + grow * n;
+      var totalOut = out * turns;
+
+      var cost = (totalIn / 1e6) * inP + (totalOut / 1e6) * outP;
+      var naive = ((base + out) / 1e6) * inP * turns;
+      var lastTurn = base + grow * (turns - 1);
+
+      var fmt = function (x) { return x.toLocaleString("en-US"); };
+      $("ceOutPane").innerHTML =
+        '<div class="ro"><span class="ro__k">Estimated cost</span><span class="ro__v ro__v--big">$' + cost.toFixed(4) + "</span></div>" +
+        '<div class="ro"><span class="ro__k">Input tokens billed</span><span class="ro__v">' + fmt(totalIn) + "</span></div>" +
+        '<div class="ro"><span class="ro__k">Output tokens billed</span><span class="ro__v">' + fmt(totalOut) + "</span></div>" +
+        '<div class="ro"><span class="ro__k">Prompt size on the last turn</span><span class="ro__v">' + fmt(lastTurn) + "</span></div>" +
+        '<div class="ro"><span class="ro__k">If turns were independent</span><span class="ro__v">$' + naive.toFixed(4) + "</span></div>";
+
+      var ratio = naive > 0 ? (cost / naive) : 1;
+      $("ceNote").innerHTML =
+        "The prompt grows from <strong>" + fmt(base) + "</strong> to <strong>" + fmt(lastTurn) +
+        "</strong> tokens across " + turns + " turns, because every turn re-sends the whole conversation. That makes this run <strong>" +
+        ratio.toFixed(1) + "×</strong> the cost of treating the turns as independent — which is why the framework caps the loop with <code>AGENT_MAX_STEPS</code> and why narrow agents are cheaper as well as more accurate.";
+    }
+    ["ceTurns", "ceBase", "ceGrow", "ceOut", "ceIn$", "ceOut$"].forEach(function (id) {
+      $(id).addEventListener("input", renderCost);
+    });
+    renderCost();
+  }
 })();
 </script>
 
