@@ -1,0 +1,15 @@
+[
+  {
+    "agent": "web-watcher",
+    "every_minutes": 60,
+    "apply": true,
+    "task": "Check every URL in watchlist.txt and append anything new to changes.md."
+  },
+  {
+    "agent": "triage",
+    "every_minutes": 1440,
+    "apply": false,
+    "disabled": true,
+    "task": "Triage the messages in the workspace and write triage-report.md."
+  }
+]

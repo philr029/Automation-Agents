@@ -1,0 +1,8 @@
+# The only hard dependency: Anthropic's official Python SDK.
+anthropic>=0.40.0
+
+# Loads secrets from a .env file so you never hard-code an API key.
+python-dotenv>=1.0.0
+
+# Used by the web toolkit to fetch pages.
+requests>=2.31.0

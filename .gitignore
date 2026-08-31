@@ -1,0 +1,15 @@
+# Secrets — never commit these.
+.env
+
+# Python bytecode / build junk
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Runtime state the agents write (snapshots, logs, outputs)
+.state/
+runs/
+workspace/*
+!workspace/.gitkeep
