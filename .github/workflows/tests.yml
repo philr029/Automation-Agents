@@ -1,0 +1,41 @@
+name: tests
+
+# Run on every push to main and on every pull request, so a change can
+# never reach main without the suite having passed on it.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      # Don't cancel 3.12 just because 3.11 failed — seeing both results
+      # tells you whether a break is version-specific.
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run tests
+        # The suite never touches the network and needs no API key, so
+        # there is nothing to configure here — that is by design.
+        run: python -m unittest discover -s tests -v
+
+      - name: Check the CLI starts
+        # A smoke test that catches import errors the unit tests miss,
+        # since --list imports every agent and toolkit in the project.
+        run: python main.py --list

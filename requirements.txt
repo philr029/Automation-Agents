@@ -4,5 +4,10 @@ anthropic>=0.40.0
 # Loads secrets from a .env file so you never hard-code an API key.
 python-dotenv>=1.0.0
 
-# Used by the web toolkit to fetch pages.
+# Used by the web and notify toolkits.
 requests>=2.31.0
+
+# Optional: PDF text extraction for the documents toolkit. Without it,
+# read_pdf returns an install instruction instead of failing the run —
+# every other tool keeps working.
+pypdf>=4.0.0

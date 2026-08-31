@@ -42,6 +42,11 @@ nothing until you add `--apply`. Get in the habit of reading the dry run first.
 | `extractor` | Pulls structured fields out of unstructured documents (invoices, CVs, forms) into a CSV you can open in a spreadsheet. |
 | `repo-digest` | Turns raw git history into a changelog a non-programmer can read. |
 | `researcher` | Researches a topic across web sources and writes a brief with citations. |
+| `meeting-notes` | Turns a raw transcript into decisions, action items with owners, and open questions. |
+| `code-reviewer` | Reads a git diff, flags real bugs with a failure scenario for each — not style opinions. |
+| `daily-digest` | Pulls watched pages and new files into one short briefing and delivers it. |
+| `spreadsheet-cleaner` | Cleans a messy CSV: finds the real header, normalises formats, quarantines bad rows. |
+| `repurposer` | Turns one long document into an exec summary, a detailed summary, social posts and an email. |
 
 Give any of them a custom task as the second argument:
 
@@ -69,10 +74,11 @@ around it.
 ```
 core/          config, the API client, console logging
 agentkit/      the engine: tool schemas, the loop, safety guards
-toolkits/      what agents can actually do: files, web, data, git
+toolkits/      what agents can do: files, web, data, git, documents, notify
 agents/        the agents themselves — prompts + tool choices
 main.py        the CLI
 scheduler.py   runs agents on a schedule
+pipelines.py   chains agents together
 ```
 
 ### Layers
@@ -105,6 +111,64 @@ instead of running.
 
 **`agents/library.py`** — each agent is a declarative `AgentSpec`: a name, a
 system prompt, and a list of toolkits. No subclassing, no loop to reimplement.
+
+---
+
+## Chaining agents together
+
+One agent does one job well. Real work is usually several jobs in a row:
+extract the data, *then* summarise it, *then* send it to you. That's a
+pipeline.
+
+```bash
+python pipelines.py --list
+python pipelines.py invoice-run --apply
+```
+
+Each step's answer is substituted into the next step's task wherever
+`{previous}` appears. Three ship by default — `invoice-run`,
+`morning-brief`, `tidy-and-summarise` — and they're declared as data in
+`pipelines.py`, same as agents are.
+
+Why not one big agent instead? Because a narrow agent with five tools and a
+specific prompt is more reliable than a broad one with twenty. Chaining keeps
+each step narrow while still getting the whole job done.
+
+---
+
+## Reading real documents
+
+`toolkits/files.py` refuses anything that isn't plain text, so a PDF never
+gets dumped into the context window as binary noise.
+`toolkits/documents.py` is the other half of that: it extracts *text* from
+PDFs and Word files.
+
+- `read_pdf` — needs `pypdf`. Takes `pages="3"` or `pages="1-5"`, and clamps
+  a too-large range to the document rather than erroring. A PDF with no text
+  layer is reported as a probable scan, not as an empty file.
+- `read_docx` — no dependency at all; a `.docx` is a zip of XML, and the
+  stdlib handles it.
+- `read_document` — dispatches on file extension. Use this for mixed folders.
+
+If `pypdf` isn't installed, `read_pdf` returns an install instruction instead
+of crashing the run — every other tool keeps working.
+
+---
+
+## Delivering results
+
+An agent that runs at 3am and writes a file nobody opens hasn't automated
+anything. `toolkits/notify.py` sends the result somewhere you'll see it:
+`send_webhook` (Slack/Discord/generic), `send_email` (SMTP), and
+`save_result` (write to disk, optionally ping a channel too).
+
+One detail worth knowing: **the model picks a destination *name*, never a
+URL.** `send_webhook(destination="alerts")` looks up `WEBHOOK_URL_ALERTS` in
+your environment. So an agent can only post to endpoints you configured, and
+nothing it reads in a document can talk it into posting somewhere else.
+
+Both senders are covered by dry run, because an unsent message costs nothing
+and an accidental one to a team channel costs a conversation.
 
 ---
 
@@ -192,9 +256,13 @@ Widen the allowlist by adding entries to it — never by removing the check.
 python -m unittest discover -s tests -v
 ```
 
-18 tests covering schema generation, the sandbox, argument injection, and the
-agent loop itself (via a scripted fake client). They never touch the network,
-so they run in well under a second and cost nothing.
+44 tests covering schema generation, the sandbox, argument injection, the
+agent loop itself (via a scripted fake client), document parsing, and the
+delivery tools' safety behaviour. They never touch the network and need no
+API key, so they run in well under a second and cost nothing.
+
+They run in CI on every push and pull request across Python 3.11, 3.12 and
+3.13 — see `.github/workflows/tests.yml`.
 
 ---
 
