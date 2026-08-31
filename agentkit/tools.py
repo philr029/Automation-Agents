@@ -160,6 +160,10 @@ def tool(func: Callable) -> Callable:
             "type": "object",
             "properties": properties,
             "required": required,
+            # Without this the model can send fields we never defined, and
+            # they pass validation on their way into the handler. Closing the
+            # object turns a silent surprise into a rejected call.
+            "additionalProperties": False,
         },
         func=func,
     )

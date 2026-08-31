@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Play the AI agent loop by hand, use four browser tools that run the framework's real logic, and follow a curated route from your first line of code to shipped automation.">
+<meta name="description" content="Audit any agent's tool definitions for security holes and description defects, plan a context budget, harden a JSON schema, and play the agent loop by hand. All in your browser.">
 <meta name="color-scheme" content="light dark">
 <meta property="og:title" content="AI Builder's Toolbox">
-<meta property="og:description" content="Sit in the model's seat. Play the agent loop by hand and watch the API payload grow.">
+<meta property="og:description" content="Paste your agent's tools. Get back concrete problems with concrete fixes. Nothing is uploaded.">
 <meta property="og:type" content="website">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚙️</text></svg>">
 <style>*{box-sizing:border-box}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
@@ -377,17 +377,17 @@ a.path__row:hover { transform: translateY(-2px); box-shadow: var(--shadow-lift);
   display: flex; flex-wrap: wrap; gap: 6px; margin-top: 42px;
   border-bottom: 1px solid var(--hairline); padding-bottom: 14px;
 }
-.tab {
+.tab, .tab2 {
   cursor: pointer; font-size: 13.5px; font-weight: 500;
   color: var(--ink-soft); background: none; border: 1px solid transparent;
   border-radius: 980px; padding: 8px 16px;
   transition: color .2s ease, background-color .2s ease, border-color .2s ease;
 }
-.tab:hover { color: var(--ink); }
-.tab[aria-selected="true"] { color: var(--accent); background: var(--accent-wash); border-color: var(--accent); }
+.tab:hover, .tab2:hover { color: var(--ink); }
+.tab[aria-selected="true"], .tab2[aria-selected="true"] { color: var(--accent); background: var(--accent-wash); border-color: var(--accent); }
 
-.panel { display: none; margin-top: 30px; }
-.panel[data-open="true"] { display: block; }
+.panel, .panel2 { display: none; margin-top: 30px; }
+.panel[data-open="true"], .panel2[data-open="true"] { display: block; }
 
 .panel__intro { font-size: 15px; color: var(--ink-soft); line-height: 1.6; max-width: 68ch; margin-bottom: 22px; }
 .panel__intro strong { color: var(--ink); font-weight: 600; }
@@ -500,6 +500,90 @@ a.path__row:hover { transform: translateY(-2px); box-shadow: var(--shadow-lift);
 .skill { font-size: 13px; color: var(--ink); background: var(--surface);
          border: 1px solid var(--hairline); border-radius: 980px; padding: 7px 15px; }
 
+
+/* ============================================================
+   Audit bench — findings, grades, budget bars
+   ============================================================ */
+.grade {
+  display: flex; align-items: center; gap: 16px;
+  padding: 18px 20px; border-radius: var(--r-md);
+  border: 1px solid var(--hairline); background: var(--surface-2); margin-bottom: 18px;
+}
+.grade__l {
+  font-size: 34px; font-weight: 700; letter-spacing: -.04em;
+  width: 58px; height: 58px; flex: none; border-radius: 50%;
+  display: grid; place-items: center; color: #fff;
+}
+.grade--a .grade__l { background: #248a3d; }
+.grade--b .grade__l { background: #0071e3; }
+.grade--c .grade__l { background: #b25000; }
+.grade--d .grade__l { background: #d70015; }
+/* Spans inside a span: without display:block these share a line and the
+   heading runs straight into the summary. */
+.grade__t { display: block; font-size: 15px; font-weight: 600; color: var(--ink); }
+.grade__s { display: block; font-size: 13.5px; color: var(--ink-soft); margin-top: 3px; line-height: 1.5; }
+
+.finds { display: grid; gap: 10px; max-height: 460px; overflow-y: auto; padding-right: 4px; }
+.finds::-webkit-scrollbar { width: 8px; }
+.finds::-webkit-scrollbar-thumb { background: var(--hairline); border-radius: 4px; }
+
+.find {
+  border: 1px solid var(--hairline); border-left-width: 3px;
+  border-radius: var(--r-sm); padding: 13px 15px; background: var(--surface);
+}
+.find--crit { border-left-color: #d70015; }
+.find--warn { border-left-color: #b25000; }
+.find--info { border-left-color: #0071e3; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .find--crit { border-left-color: #ff453a; }
+  :root:not([data-theme="light"]) .find--warn { border-left-color: #ff9f0a; }
+  :root:not([data-theme="light"]) .find--info { border-left-color: #2997ff; }
+}
+:root[data-theme="dark"] .find--crit { border-left-color: #ff453a; }
+:root[data-theme="dark"] .find--warn { border-left-color: #ff9f0a; }
+:root[data-theme="dark"] .find--info { border-left-color: #2997ff; }
+
+.find__h { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.find__t { font-size: 14px; font-weight: 600; color: var(--ink); letter-spacing: -.01em; }
+.find__sev {
+  font-family: "JetBrains Mono", monospace; font-size: 10px; font-weight: 700;
+  letter-spacing: .07em; text-transform: uppercase; flex: none; color: var(--ink-faint);
+}
+.find__where {
+  font-family: "JetBrains Mono", monospace; font-size: 11.5px;
+  color: var(--accent); margin-top: 4px;
+}
+.find__w { font-size: 13.5px; color: var(--ink-soft); line-height: 1.55; margin-top: 7px; }
+.find__f { font-size: 13.5px; color: var(--ink); line-height: 1.55; margin-top: 7px; }
+.find__f b { font-weight: 600; }
+.find__f code, .find__w code {
+  font-family: "JetBrains Mono", monospace; font-size: 12px;
+  background: var(--ground-alt); border: 1px solid var(--hairline);
+  padding: 1px 5px; border-radius: 4px;
+}
+
+.tally { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+.tally__i {
+  font-size: 12px; padding: 5px 12px; border-radius: 980px;
+  border: 1px solid var(--hairline); color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+}
+
+/* budget bars */
+.bars { display: grid; gap: 12px; }
+.bar__h { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 5px; }
+.bar__k { color: var(--code-dim); }
+.bar__v { font-family: "JetBrains Mono", monospace; color: var(--code-ink); font-variant-numeric: tabular-nums; }
+.bar__track { height: 9px; border-radius: 980px; background: rgba(255,255,255,.10); overflow: hidden; }
+.bar__fill { height: 100%; border-radius: 980px; }
+.bar__fill--1 { background: #2997ff; }
+.bar__fill--2 { background: #30d158; }
+.bar__fill--3 { background: #ff9f0a; }
+.bar__fill--4 { background: #bf5af2; }
+.bar__fill--over { background: #ff453a; }
+
+.meter { margin-top: 18px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,.10); }
+
 /* ============================================================ Reveal */
 .reveal { opacity: 0; transform: translateY(18px); transition: opacity .6s ease, transform .6s cubic-bezier(.2,.7,.3,1); }
 .reveal.in { opacity: 1; transform: none; }
@@ -515,6 +599,7 @@ a.path__row:hover { transform: translateY(-2px); box-shadow: var(--shadow-lift);
     <span class="nav__mark">AI Builder's Toolbox</span>
     <a class="nav__link" href="#play">Be the model</a>
     <a class="nav__link" href="#workbench">Workbench</a>
+    <a class="nav__link" href="#audit">Audit bench</a>
     <a class="nav__link" href="#path">Start here</a>
     <a class="nav__link" href="#learn">Learn to code</a>
     <a class="nav__link" href="#ai">Build with AI</a>
@@ -750,7 +835,110 @@ Rules:
   </div>
 </section>
 
-<section class="band band--alt section" id="path">
+
+<section class="band band--alt section" id="audit">
+  <div class="wrap">
+    <p class="eyebrow">The audit bench</p>
+    <h2 class="h2">Tools for anyone<br>shipping an agent.</h2>
+    <p class="lead" style="margin-top:16px">These aren't about this framework. Paste in the tool definitions from <em>any</em> agent — LangChain, the raw API, your own — and get back concrete problems with concrete fixes. Everything runs in your browser; nothing is uploaded anywhere.</p>
+
+    <div class="tabs" role="tablist" aria-label="Audit tools">
+      <button class="tab2" role="tab" id="tab-audit"  aria-controls="p-audit"  aria-selected="true"  type="button">Agent Auditor</button>
+      <button class="tab2" role="tab" id="tab-budget" aria-controls="p-budget" aria-selected="false" type="button">Context Budget</button>
+      <button class="tab2" role="tab" id="tab-strict" aria-controls="p-strict" aria-selected="false" type="button">Schema Hardener</button>
+    </div>
+
+    <!-- ---------------- Agent Auditor ---------------- -->
+    <div class="panel2" id="p-audit" role="tabpanel" aria-labelledby="tab-audit" data-open="true">
+      <p class="panel__intro">The two ways agents go wrong are <strong>a tool that hands the model too much power</strong> and <strong>a description too vague for it to use correctly</strong>. Both are visible in the schema before you ever run anything. This checks for 20 of them.</p>
+      <div class="work">
+        <div class="work__in">
+          <span class="work__label">Your tools — paste the JSON you send as `tools`</span>
+          <div class="chips">
+            <button class="chip-btn" type="button" data-audit="risky">A risky agent</button>
+            <button class="chip-btn" type="button" data-audit="good">A careful agent</button>
+            <button class="chip-btn" type="button" data-audit="broken">One with a real bug</button>
+          </div>
+          <textarea class="area" id="auIn" style="min-height:250px" spellcheck="false" aria-label="Tool definitions JSON"></textarea>
+          <label class="field" style="margin-top:14px">
+            <span class="field__k">System prompt (optional — audited too)</span>
+            <textarea class="area" id="auSys" style="min-height:90px" spellcheck="false" aria-label="System prompt">You are a helpful assistant with access to tools.</textarea>
+          </label>
+        </div>
+        <div class="work__out" style="background:var(--ground-alt)">
+          <span class="work__label" style="color:var(--ink-faint)">Findings</span>
+          <div id="auGrade"></div>
+          <div class="tally" id="auTally"></div>
+          <div class="finds" id="auFinds"></div>
+        </div>
+      </div>
+      <p class="note" style="margin-top:18px">Static analysis, so it finds structural problems — it can't tell you whether your prompt is <em>good</em>, only whether it's missing the instructions that agents measurably need. Treat a clean report as "no obvious holes", not "safe".</p>
+    </div>
+
+    <!-- ---------------- Context Budget ---------------- -->
+    <div class="panel2" id="p-budget" role="tabpanel" aria-labelledby="tab-budget">
+      <p class="panel__intro">Every turn re-sends everything. People discover their context budget by hitting the wall mid-run — usually after the agent has already done expensive work. Plan it here instead: see what fits, what breaks first, and how many turns you actually get.</p>
+      <div class="work">
+        <div class="work__in">
+          <label class="field">
+            <span class="field__k">Context window (tokens)</span>
+            <input class="input" id="bgWindow" type="number" min="1000" step="1000" value="200000" aria-label="Context window">
+          </label>
+          <label class="field">
+            <span class="field__k">System prompt</span>
+            <input class="input" id="bgSys" type="number" min="0" step="100" value="1200" aria-label="System tokens">
+          </label>
+          <label class="field">
+            <span class="field__k">Tool schemas (all of them, every turn)</span>
+            <input class="input" id="bgTools" type="number" min="0" step="100" value="2400" aria-label="Tool tokens">
+          </label>
+          <label class="field">
+            <span class="field__k">Reference documents pinned into the prompt</span>
+            <input class="input" id="bgDocs" type="number" min="0" step="500" value="0" aria-label="Doc tokens">
+          </label>
+          <label class="field">
+            <span class="field__k">Average tokens added per turn (call + result)</span>
+            <input class="input" id="bgTurn" type="number" min="1" step="100" value="900" aria-label="Per turn">
+          </label>
+          <label class="field">
+            <span class="field__k">Reserved for the final answer</span>
+            <input class="input" id="bgReserve" type="number" min="0" step="500" value="4000" aria-label="Reserve">
+          </label>
+        </div>
+        <div class="work__out">
+          <span class="work__label">At the turn you run out</span>
+          <div class="bars" id="bgBars"></div>
+          <div class="meter" id="bgMeter"></div>
+        </div>
+      </div>
+      <p class="note" style="margin-top:18px" id="bgNote"></p>
+    </div>
+
+    <!-- ---------------- Schema Hardener ---------------- -->
+    <div class="panel2" id="p-strict" role="tabpanel" aria-labelledby="tab-strict">
+      <p class="panel__intro">Paste an example of the JSON you want back and get a <strong>strict</strong> schema for it — the kind that actually holds. Loose schemas are why structured output drifts: a free-string field the model fills differently every time, a missing <code>required</code>, an object that silently accepts extra keys.</p>
+      <div class="work">
+        <div class="work__in">
+          <span class="work__label">Example output — one representative object</span>
+          <div class="chips">
+            <button class="chip-btn" type="button" data-strict="invoice">invoice</button>
+            <button class="chip-btn" type="button" data-strict="triage">triage result</button>
+            <button class="chip-btn" type="button" data-strict="nested">nested record</button>
+          </div>
+          <textarea class="area" id="shIn" style="min-height:260px" spellcheck="false" aria-label="Example JSON"></textarea>
+        </div>
+        <div class="work__out">
+          <span class="work__label">Strict JSON Schema</span>
+          <pre class="out" id="shOut"></pre>
+          <button class="copy" id="shCopy" type="button">Copy schema</button>
+        </div>
+      </div>
+      <p class="note" style="margin-top:18px" id="shNote"></p>
+    </div>
+  </div>
+</section>
+
+<section class="band section" id="path">
   <div class="wrap">
     <p class="eyebrow">Start here</p>
     <h2 class="h2">Five steps, in order.</h2>
@@ -786,7 +974,7 @@ Rules:
   </div>
 </section>
 
-<section class="band section" id="learn">
+<section class="band band--alt section" id="learn">
   <div class="wrap">
     <p class="eyebrow">Learn to code</p>
     <h2 class="h2">Where to actually start.</h2>
@@ -851,7 +1039,7 @@ Rules:
   </div>
 </section>
 
-<section class="band band--alt section" id="ai">
+<section class="band section" id="ai">
   <div class="wrap">
     <p class="eyebrow">Build with AI</p>
     <h2 class="h2">From using models<br>to building on them.</h2>
@@ -904,7 +1092,7 @@ Rules:
   </div>
 </section>
 
-<section class="band section" id="tools">
+<section class="band band--alt section" id="tools">
   <div class="wrap">
     <p class="eyebrow">Everyday tools</p>
     <h2 class="h2">What you'll have open.</h2>
@@ -957,7 +1145,7 @@ Rules:
   </div>
 </section>
 
-<section class="band band--alt section" id="project">
+<section class="band section" id="project">
   <div class="wrap">
     <p class="eyebrow">The project</p>
     <div class="split">
@@ -997,7 +1185,7 @@ Rules:
 </section>
 
 
-<section class="band section" id="build">
+<section class="band band--alt section" id="build">
   <div class="wrap">
     <p class="eyebrow">How it was built</p>
     <h2 class="h2">The decisions,<br>and what they cost.</h2>
@@ -1394,7 +1582,8 @@ Rules:
     return {
       name: name, hidden: hidden,
       schema: { name: name, description: summary || ("Call " + name + "."),
-                input_schema: { type: "object", properties: props, required: required } }
+                input_schema: { type: "object", properties: props, required: required,
+                                additionalProperties: false } }
     };
   }
 
@@ -1629,6 +1818,447 @@ Rules:
       $(id).addEventListener("input", renderCost);
     });
     renderCost();
+  }
+})();
+</script>
+
+
+<script>
+/* ============================================================
+   The audit bench. Three tools for anyone building an agent,
+   framework-agnostic, entirely client side. Nothing is uploaded.
+   ============================================================ */
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  function esc(t) { return String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+  function colorJson(t) {
+    return esc(t)
+      .replace(/&quot;([^&]*?)&quot;(\s*:)/g,'<span class="j-key">"$1"</span>$2')
+      .replace(/:\s*&quot;((?:[^&]|&(?!quot;))*)&quot;/g,': <span class="j-str">"$1"</span>')
+      .replace(/:\s*(true|false|null)/g,': <span class="j-num">$1</span>')
+      .replace(/:\s*(\d+)/g,': <span class="j-num">$1</span>');
+  }
+
+  /* ---------- tabs ---------- */
+  var tabs = Array.prototype.slice.call(document.querySelectorAll(".tab2"));
+  function select(tab) {
+    tabs.forEach(function (t) {
+      var open = t === tab;
+      t.setAttribute("aria-selected", open ? "true" : "false");
+      $(t.getAttribute("aria-controls")).setAttribute("data-open", open ? "true" : "false");
+    });
+  }
+  tabs.forEach(function (tab) {
+    tab.addEventListener("click", function () { select(tab); });
+    tab.addEventListener("keydown", function (e) {
+      var i = tabs.indexOf(tab), n = tabs.length, next = null;
+      if (e.key === "ArrowRight") next = tabs[(i + 1) % n];
+      if (e.key === "ArrowLeft")  next = tabs[(i - 1 + n) % n];
+      if (next) { select(next); next.focus(); }
+    });
+  });
+
+  /* ============================================================
+     1. AGENT AUDITOR
+     ============================================================ */
+  var SAMPLES = {
+    risky: JSON.stringify([
+      { name: "run", description: "Runs a command.",
+        input_schema: { type: "object", properties: { cmd: { type: "string" } }, required: ["cmd"] } },
+      { name: "fetch", description: "Fetch a URL.",
+        input_schema: { type: "object", properties: { url: { type: "string" } }, required: ["url"] } },
+      { name: "delete_record", description: "Deletes a record from the database.",
+        input_schema: { type: "object", properties: { id: { type: "string" }, api_key: { type: "string", description: "the admin API key" } }, required: ["id","api_key"] } },
+      { name: "send", description: "Send.",
+        input_schema: { type: "object", properties: { to: { type: "string" }, body: { type: "string" }, timeout: { type: "integer" } }, required: ["to","body"] } }
+    ], null, 2),
+    good: JSON.stringify([
+      { name: "read_document", description: "Read a document from the workspace and return its text. Use this before answering any question about a file's contents.",
+        input_schema: { type: "object", additionalProperties: false,
+          properties: { path: { type: "string", description: "File to read, relative to the workspace root." },
+                        max_chars: { type: "integer", description: "Truncate the returned text after this many characters." } },
+          required: ["path"] } },
+      { name: "notify_channel", description: "Post a short message to a preconfigured Slack channel. Use only to report a finished result.",
+        input_schema: { type: "object", additionalProperties: false,
+          properties: { message: { type: "string", description: "The text to post. Markdown is supported." },
+                        destination: { type: "string", enum: ["alerts","reports"], description: "Which configured channel to post to." } },
+          required: ["message","destination"] } }
+    ], null, 2),
+    broken: JSON.stringify([
+      { name: "search_files", description: "Search files.",
+        input_schema: { type: "object", properties: { q: { type: "string" } }, required: ["query"] } },
+      { name: "search_documents", description: "Searches documents.",
+        input_schema: { type: "object", properties: { q: { type: "string" } }, required: ["q"] } },
+      { name: "wait", description: "Wait before retrying.",
+        input_schema: { type: "object", properties: { duration: { type: "number" } }, required: ["duration"] } }
+    ], null, 2)
+  };
+
+  // Each rule returns findings. Severity drives both the grade and the order.
+  var URL_ARG   = /^(url|uri|endpoint|link|address|host|webhook)$/i;
+  var PATH_ARG  = /^(path|file|filename|filepath|dir|directory|location)$/i;
+  var CMD_ARG   = /^(cmd|command|shell|script|exec|query|sql|code|expression)$/i;
+  var SECRET    = /(api[_-]?key|secret|token|password|passwd|credential|bearer|private[_-]?key)/i;
+  var DESTRUCT  = /\b(delet|remov|drop|destroy|purg|wip|truncat|revok|terminat)/i;
+  var OUTBOUND  = /\b(send|post|email|publish|tweet|notif|transfer|pay|charg|submit)/i;
+  var UNITY     = /(second|minute|hour|day|ms|millisecond|byte|char|token|page|row|item|pixel|percent|usd|cent)/i;
+
+  function audit(tools, sys) {
+    var f = [];
+    function add(sev, title, where, why, fix) { f.push({ sev: sev, title: title, where: where, why: why, fix: fix }); }
+
+    // ---- per-tool ----
+    tools.forEach(function (t) {
+      var name = t.name || "(unnamed)";
+      var desc = t.description || "";
+      var schema = t.input_schema || t.parameters || {};
+      var props = schema.properties || {};
+      var req = schema.required || [];
+      var keys = Object.keys(props);
+
+      if (!t.name) add("crit","Tool has no name","(unnamed tool)","The API rejects a tool without a name, and the model has nothing to call.","Give every tool a stable, lowercase, verb-led <code>name</code>.");
+
+      // --- real structural bugs ---
+      req.forEach(function (r) {
+        if (keys.indexOf(r) === -1)
+          add("crit","required names a property that doesn't exist", name + ".required[\"" + r + "\"]",
+              "The schema demands <code>" + esc(r) + "</code> but never defines it. Strict validators reject the tool outright; lenient ones let the model send a field you never handle.",
+              "Either add <code>" + esc(r) + "</code> to <b>properties</b>, or remove it from <b>required</b>.");
+      });
+
+      // --- capability / security ---
+      keys.forEach(function (k) {
+        var p = props[k] || {};
+        if (SECRET.test(k))
+          add("crit","A credential is a model-chosen argument", name + "." + k,
+              "Anything in the schema is something the model supplies — and something an attacker can influence through a document it reads. Credentials in the schema also end up in every prompt and every log.",
+              "Remove it from the schema entirely and <b>inject it at call time</b> from your environment. The model should never see it exists.");
+        if (SECRET.test(p.description || ""))
+          add("warn","A secret is described in a parameter description", name + "." + k,
+              "Descriptions are sent to the model on every single turn, and are stored in logs.",
+              "Describe the parameter's <i>purpose</i>, never its value or how to obtain one.");
+        if (URL_ARG.test(k) && !p.enum)
+          add("crit","Free-form URL argument", name + "." + k,
+              "The model chooses where this request goes. A prompt injection hidden in any document it reads can point it at an attacker's server — that's how tool-using agents exfiltrate data.",
+              "If the destination should be fixed, take a <b>destination name</b> and map it to a URL your code holds. If fetching arbitrary URLs is genuinely the point, the control moves to the network: an <b>egress allowlist</b>, and never returning response bodies into a prompt that also holds secrets.");
+        if (PATH_ARG.test(k) && !p.enum)
+          add("warn","Free-form filesystem path", name + "." + k,
+              "The model can ask for <code>../../.ssh/id_rsa</code> just as easily as <code>notes.md</code>.",
+              "Resolve the path first, then check it is inside your root <b>by components</b> — <code>startswith</code> lets <code>/root-evil</code> through where <code>/root</code> was meant.");
+        if (CMD_ARG.test(k))
+          add("crit","Free-form command or query argument", name + "." + k,
+              "This is arbitrary execution with extra steps. Whatever the model can be persuaded to write, you run.",
+              "Expose <b>specific operations</b> instead, each with typed parameters. If you must shell out, use an allowlist of subcommands and pass an argument <i>list</i>, never a string.");
+        if (p.type === "string" && !p.enum && /^(mode|type|kind|status|action|operation|format|level)$/i.test(k))
+          add("warn","A categorical argument with no enum", name + "." + k,
+              "The model will invent values — <code>\"urgent\"</code> one turn, <code>\"URGENT\"</code> or <code>\"high\"</code> the next — and your code silently takes a branch nobody tested.",
+              "Add <code>enum</code> with the exact values you accept.");
+        if ((p.type === "integer" || p.type === "number") && !UNITY.test((p.description || "") + k))
+          add("info","A number with no unit", name + "." + k,
+              "<code>timeout: 30</code> is seconds to one model and milliseconds to another. It will guess, and it will sometimes guess wrong.",
+              "Put the unit in the name (<code>timeout_seconds</code>) or state it in the description.");
+        if (!p.description)
+          add("warn","Parameter has no description", name + "." + k,
+              "The description is the only thing telling the model what to put here. Without it, argument errors are the model's most common failure.",
+              "One line saying what it is and, where relevant, what format it takes.");
+      });
+
+      // --- destructive / outbound without a brake ---
+      // Separators are word characters, so "delete_record" has no boundary
+      // between "delete" and "_record". Normalise before matching.
+      var blob = (name + " " + desc).replace(/[_-]/g, " ");
+      if (DESTRUCT.test(blob) && !/dry[_ -]?run|confirm|preview|simulate/i.test(JSON.stringify(t)))
+        add("crit","Destructive tool with no brake", name,
+            "Nothing here lets the run be rehearsed. The first time you test this agent, it deletes for real.",
+            "Add a <code>dry_run</code> parameter defaulting to true, or gate the tool behind a confirmation your code enforces — not one the model can skip.");
+      if (OUTBOUND.test(blob) && !/dry[_ -]?run|confirm|preview/i.test(JSON.stringify(t)))
+        add("warn","Sends data outward with no rehearsal", name,
+            "An unsent message costs nothing; a wrong one sent to a customer or a team channel costs a conversation.",
+            "Support a rehearsal mode that returns what <i>would</i> be sent.");
+
+      // --- description quality ---
+      if (!desc)
+        add("crit","Tool has no description", name,
+            "The model picks tools almost entirely from their descriptions. With none, selection is a coin flip.",
+            "Say what it does, and when to use it rather than a neighbouring tool.");
+      else if (desc.length < 40)
+        add("warn","Description too short to disambiguate", name + " (" + desc.length + " chars)",
+            "“" + esc(desc) + "” doesn't tell the model when to reach for this over anything else.",
+            "Aim for a sentence of what it does plus a sentence of when to use it.");
+      if (schema.additionalProperties !== false && keys.length)
+        add("info","additionalProperties isn't false", name,
+            "The model can send fields you never defined, and they'll pass validation on their way into your handler.",
+            "Set <code>\"additionalProperties\": false</code>.");
+      if (keys.length > 8)
+        add("warn","Large argument surface", name + " (" + keys.length + " arguments)",
+            "Accuracy drops as arguments multiply; the model starts filling some at random.",
+            "Split it into narrower tools, or move rarely-used arguments into your own defaults.");
+    });
+
+    // ---- across tools ----
+    var names = tools.map(function (t) { return (t.name || "").toLowerCase(); });
+    for (var i = 0; i < names.length; i++) {
+      for (var j = i + 1; j < names.length; j++) {
+        if (!names[i] || !names[j]) continue;
+        var a = names[i].replace(/[_-]/g, " "), b = names[j].replace(/[_-]/g, " ");
+        var wa = a.split(" "), wb = b.split(" ");
+        var shared = wa.filter(function (w) { return wb.indexOf(w) > -1; }).length;
+        var nameClash = shared > 0 && shared >= Math.max(wa.length, wb.length) - 1;
+        // A shared word is only a problem if the descriptions don't then
+        // pull the two apart. Long, distinct descriptions do that job.
+        var da = (tools[i].description || ""), db = (tools[j].description || "");
+        var dwa = da.toLowerCase().split(/\W+/).filter(Boolean);
+        var dwb = db.toLowerCase().split(/\W+/).filter(Boolean);
+        var dShared = dwa.filter(function (w) { return dwb.indexOf(w) > -1; }).length;
+        var dRatio = Math.max(dwa.length, dwb.length)
+          ? dShared / Math.max(dwa.length, dwb.length) : 1;
+        // Tuned against 21 real tools: at 60 chars / 0.6 this flagged
+        // read_file vs read_csv, which are properly distinct. Only genuinely
+        // stub descriptions, or near-identical wording, should trip it.
+        var descsFailToSeparate = (da.length < 30 && db.length < 30) || dRatio > 0.75;
+        if (nameClash && descsFailToSeparate)
+          add("warn","Two tools are easy to confuse", names[i] + " / " + names[j],
+              "Near-identical names with similar descriptions are one of the most reliable ways to make a model pick the wrong tool.",
+              "Rename so the difference is in the <i>first</i> word, and say in each description when <b>not</b> to use it.");
+      }
+    }
+    if (tools.length > 20)
+      add("warn","Too many tools in one agent", tools.length + " tools",
+          "Selection accuracy falls off as the list grows; the model starts ignoring the tail.",
+          "Split into several narrow agents and chain them, rather than one agent that can do everything.");
+
+    // ---- system prompt ----
+    var sp = (sys || "").toLowerCase();
+    if (!sp.trim())
+      add("crit","No system prompt","system",
+          "Without one, the model has no standing instructions about when to use tools, what to do on failure, or when to stop.",
+          "Write one covering: prefer tools over guessing, adapt on error, and stop when done.");
+    else {
+      if (!/tool|call|look up|check|verify|find out/.test(sp))
+        add("warn","Prompt never tells it to use its tools","system",
+            "Models will happily answer from memory when the prompt doesn't push them to look. That's how agents confidently describe files they never opened.",
+            "Add: “Use your tools to find things out. Never guess when a tool can tell you.”");
+      if (!/error|fail|retry|adapt|wrong/.test(sp))
+        add("warn","Prompt says nothing about failure","system",
+            "On a tool error, an unguided model often repeats the identical failing call until it hits the step ceiling.",
+            "Add: “If a tool returns an error, read it and adapt. Do not repeat the same failing call.”");
+      if (!/stop|finish|done|final|complete/.test(sp))
+        add("info","Prompt has no stop condition","system",
+            "Agents that aren't told when they're finished tend to keep going, which costs money and invites drift.",
+            "Add: “Stop when the task is done and give a short, concrete final answer.”");
+      if (sp.length < 120)
+        add("info","System prompt is very short","system (" + (sys || "").length + " chars)",
+            "There isn't room here for the behaviour an unattended agent needs.",
+            "Cover method, rules, and what <b>not</b> to do. The prohibitions matter most.");
+    }
+    return f;
+  }
+
+  var auIn = $("auIn");
+  if (auIn) {
+    function runAudit() {
+      var tools, raw = auIn.value.trim();
+      try {
+        tools = JSON.parse(raw || "[]");
+      } catch (e) {
+        $("auGrade").innerHTML = '<div class="grade grade--d"><span class="grade__l">!</span><span><span class="grade__t">That isn\'t valid JSON</span><span class="grade__s">' + esc(e.message) + "</span></span></div>";
+        $("auTally").innerHTML = ""; $("auFinds").innerHTML = "";
+        return;
+      }
+      // Accept a bare tool, a list, or an OpenAI-style {tools:[{function:{...}}]}
+      if (!Array.isArray(tools)) tools = tools.tools || [tools];
+      tools = tools.map(function (t) { return t && t.function ? t.function : t; }).filter(Boolean);
+
+      var finds = audit(tools, $("auSys").value);
+      var order = { crit: 0, warn: 1, info: 2 };
+      finds.sort(function (a, b) { return order[a.sev] - order[b.sev]; });
+
+      var c = finds.filter(function (x) { return x.sev === "crit"; }).length;
+      var w = finds.filter(function (x) { return x.sev === "warn"; }).length;
+      var n = finds.filter(function (x) { return x.sev === "info"; }).length;
+
+      var g, cls, msg;
+      if (c > 0)            { g = "D"; cls = "d"; msg = c + " critical finding" + (c > 1 ? "s" : "") + ". Fix these before this agent touches anything real."; }
+      else if (w > 2)       { g = "C"; cls = "c"; msg = "No critical holes, but enough rough edges to cause misuse in practice."; }
+      else if (w > 0)       { g = "B"; cls = "b"; msg = "Structurally sound. A few things would make the model more reliable."; }
+      else                  { g = "A"; cls = "a"; msg = "Nothing structural to flag. Static analysis can't judge whether the prompt is good — only that it isn't missing the basics."; }
+
+      $("auGrade").innerHTML =
+        '<div class="grade grade--' + cls + '"><span class="grade__l">' + g + "</span>" +
+        '<span><span class="grade__t">' + tools.length + " tool" + (tools.length === 1 ? "" : "s") + " audited</span>" +
+        '<span class="grade__s">' + msg + "</span></span></div>";
+
+      $("auTally").innerHTML =
+        '<span class="tally__i">' + c + " critical</span>" +
+        '<span class="tally__i">' + w + " warning" + (w === 1 ? "" : "s") + "</span>" +
+        '<span class="tally__i">' + n + " note" + (n === 1 ? "" : "s") + "</span>";
+
+      // A real agent hits the same rule in a dozen places. Twelve identical
+      // cards is an unreadable report, so group by title and list the sites.
+      var groups = [], byTitle = {};
+      finds.forEach(function (x) {
+        if (!byTitle[x.title]) { byTitle[x.title] = { sev: x.sev, title: x.title, why: x.why, fix: x.fix, where: [] }; groups.push(byTitle[x.title]); }
+        byTitle[x.title].where.push(x.where);
+      });
+
+      $("auFinds").innerHTML = groups.length ? groups.map(function (g) {
+        var shown = g.where.slice(0, 6).map(esc).join("  ·  ");
+        if (g.where.length > 6) shown += "  · +" + (g.where.length - 6) + " more";
+        return '<div class="find find--' + g.sev + '">' +
+          '<div class="find__h"><span class="find__t">' + g.title +
+            (g.where.length > 1 ? ' <span class="find__sev">×' + g.where.length + "</span>" : "") +
+          '</span><span class="find__sev">' + g.sev + "</span></div>" +
+          '<div class="find__where">' + shown + "</div>" +
+          '<div class="find__w">' + g.why + "</div>" +
+          '<div class="find__f"><b>Fix:</b> ' + g.fix + "</div></div>";
+      }).join("") : '<p class="note">No findings. Static analysis found nothing structural — that is not the same as safe.</p>';
+    }
+    auIn.value = SAMPLES.risky;
+    auIn.addEventListener("input", runAudit);
+    $("auSys").addEventListener("input", runAudit);
+    document.querySelectorAll("[data-audit]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        auIn.value = SAMPLES[b.getAttribute("data-audit")];
+        if (b.getAttribute("data-audit") === "good") {
+          $("auSys").value = "You are an automation agent.\n\nUse your tools to find things out — never guess when a tool can tell you.\nIf a tool returns an error, read it and adapt; do not repeat the same failing call.\nStop when the task is done and give a short, concrete final answer.";
+        }
+        runAudit();
+      });
+    });
+    runAudit();
+  }
+
+  /* ============================================================
+     2. CONTEXT BUDGET
+     ============================================================ */
+  var bgWindow = $("bgWindow");
+  if (bgWindow) {
+    function runBudget() {
+      var win = Math.max(1, +bgWindow.value || 1);
+      var sys = +$("bgSys").value || 0;
+      var tls = +$("bgTools").value || 0;
+      var doc = +$("bgDocs").value || 0;
+      var per = Math.max(1, +$("bgTurn").value || 1);
+      var res = +$("bgReserve").value || 0;
+
+      var fixed = sys + tls + doc;
+      var usable = win - fixed - res;
+      var turns = Math.floor(usable / per);
+      var history = Math.max(0, turns) * per;
+
+      function bar(k, v, cls) {
+        var pct = Math.min(100, (v / win) * 100);
+        return '<div><div class="bar__h"><span class="bar__k">' + k + '</span><span class="bar__v">' +
+               v.toLocaleString("en-US") + "</span></div>" +
+               '<div class="bar__track"><div class="bar__fill bar__fill--' + cls + '" style="width:' + pct.toFixed(2) + '%"></div></div></div>';
+      }
+
+      $("bgBars").innerHTML =
+        bar("System prompt", sys, "1") +
+        bar("Tool schemas (resent every turn)", tls, "2") +
+        bar("Pinned documents", doc, "3") +
+        bar("Conversation history at the limit", history, "4") +
+        bar("Reserved for the answer", res, usable < 0 ? "over" : "1");
+
+      var pctFixed = ((fixed + res) / win) * 100;
+      $("bgMeter").innerHTML = usable <= 0
+        ? '<div class="ro"><span class="ro__k">Turns you get</span><span class="ro__v ro__v--big" style="color:#ff453a">0</span></div>' +
+          '<div class="ro"><span class="ro__k">Over budget by</span><span class="ro__v">' + Math.abs(usable).toLocaleString("en-US") + " tokens</span></div>"
+        : '<div class="ro"><span class="ro__k">Turns before you run out</span><span class="ro__v ro__v--big">' + turns + "</span></div>" +
+          '<div class="ro"><span class="ro__k">Fixed overhead every turn</span><span class="ro__v">' + pctFixed.toFixed(1) + "%</span></div>" +
+          '<div class="ro"><span class="ro__k">Free for actual work</span><span class="ro__v">' + usable.toLocaleString("en-US") + "</span></div>";
+
+      var note;
+      if (usable <= 0) note = "<strong>This doesn't fit.</strong> Your fixed overhead plus the reserve already exceeds the window, so the agent fails on turn one. Cut the pinned documents first — they're re-sent every turn for a benefit that usually only applies to a few of them.";
+      else if (turns < 5) note = "<strong>Only " + turns + " turns.</strong> That's tight for anything multi-step. The biggest lever is usually the pinned documents: retrieve what's needed per turn instead of pinning everything up front.";
+      else if (tls > win * 0.05) note = "Tool schemas are <strong>" + ((tls / win) * 100).toFixed(1) + "%</strong> of your window and are re-sent on <em>every</em> turn. Splitting into narrower agents cuts this directly — and improves selection accuracy at the same time.";
+      else note = "<strong>" + turns + " turns</strong> of headroom. Comfortable. Note the history bar is what actually grows — everything else is fixed cost paid on every turn.";
+      $("bgNote").innerHTML = note;
+    }
+    ["bgWindow","bgSys","bgTools","bgDocs","bgTurn","bgReserve"].forEach(function (id) {
+      $(id).addEventListener("input", runBudget);
+    });
+    runBudget();
+  }
+
+  /* ============================================================
+     3. SCHEMA HARDENER
+     ============================================================ */
+  var SH = {
+    invoice: '{\n  "invoice_number": "INV-2024-0417",\n  "supplier": "Northwind Ltd",\n  "issued": "2024-03-01",\n  "total": 1250.00,\n  "currency": "GBP",\n  "status": "overdue",\n  "paid": false\n}',
+    triage:  '{\n  "source_file": "msg-02.eml",\n  "urgency": "urgent",\n  "summary": "Production database at 94% capacity.",\n  "needs_reply": true,\n  "draft": "Thanks for flagging — looking at it now."\n}',
+    nested:  '{\n  "id": "rec_88",\n  "customer": { "name": "Ada", "email": "ada@example.com" },\n  "items": [ { "sku": "A1", "qty": 2 } ],\n  "tags": ["priority", "eu"]\n}'
+  };
+
+  // Field names that almost always want a closed set rather than free text.
+  var ENUMISH = /^(status|state|urgency|priority|severity|category|type|kind|mode|level|currency|action)$/i;
+  var COMMON = {
+    currency: ["GBP","USD","EUR"],
+    status:   ["paid","overdue","pending","cancelled"],
+    urgency:  ["urgent","respond","fyi","ignore"],
+    priority: ["low","medium","high"],
+    severity: ["info","warning","critical"]
+  };
+  var DATEY = /^\d{4}-\d{2}-\d{2}$/;
+
+  function harden(value, key, notes) {
+    if (Array.isArray(value)) {
+      var item = value.length ? harden(value[0], key, notes) : { type: "string" };
+      return { type: "array", items: item };
+    }
+    if (value && typeof value === "object") {
+      var props = {}, req = [];
+      Object.keys(value).forEach(function (k) { props[k] = harden(value[k], k, notes); req.push(k); });
+      return { type: "object", additionalProperties: false, properties: props, required: req };
+    }
+    if (typeof value === "boolean") return { type: "boolean" };
+    if (typeof value === "number") {
+      var s = { type: Number.isInteger(value) ? "integer" : "number" };
+      if (/total|amount|price|cost|qty|quantity|count/i.test(key || "")) { s.minimum = 0; notes.push(key + ": added minimum 0"); }
+      return s;
+    }
+    var str = { type: "string" };
+    if (DATEY.test(String(value))) { str.format = "date"; notes.push((key||"field") + ": detected a date, added format"); }
+    else if (/email/i.test(key || "")) { str.format = "email"; notes.push(key + ": added email format"); }
+    else if (ENUMISH.test(key || "")) {
+      var guess = COMMON[String(key).toLowerCase()] || [String(value)];
+      if (guess.indexOf(String(value)) === -1) guess = [String(value)].concat(guess);
+      str.enum = guess;
+      notes.push(key + ": closed to an enum — edit the values to match yours");
+    }
+    return str;
+  }
+
+  var shIn = $("shIn");
+  if (shIn) {
+    function runHarden() {
+      var notes = [], parsed;
+      try { parsed = JSON.parse(shIn.value); }
+      catch (e) {
+        $("shOut").innerHTML = '<span class="j-err">' + esc("Not valid JSON: " + e.message) + "</span>";
+        $("shNote").textContent = "";
+        return;
+      }
+      var schema = harden(parsed, null, notes);
+      $("shOut").innerHTML = colorJson(JSON.stringify(schema, null, 2));
+      var count = (schema.required || []).length;
+      $("shNote").innerHTML =
+        "Every field marked <strong>required</strong> (" + count + ") and <code>additionalProperties: false</code> set at each level — a model can't quietly drop a field or invent one. " +
+        (notes.length ? "Also: " + notes.map(esc).join("; ") + "." : "") +
+        " <strong>Loosen deliberately</strong>: make a field optional only when you've decided it genuinely can be absent.";
+    }
+    shIn.value = SH.invoice;
+    shIn.addEventListener("input", runHarden);
+    document.querySelectorAll("[data-strict]").forEach(function (b) {
+      b.addEventListener("click", function () { shIn.value = SH[b.getAttribute("data-strict")]; runHarden(); });
+    });
+    $("shCopy").addEventListener("click", function () {
+      var text = $("shOut").innerText, btn = $("shCopy");
+      var done = function () { btn.textContent = "Copied"; setTimeout(function () { btn.textContent = "Copy schema"; }, 1600); };
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, done);
+      else done();
+    });
+    runHarden();
   }
 })();
 </script>
