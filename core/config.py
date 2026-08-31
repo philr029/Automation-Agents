@@ -39,6 +39,33 @@ def _env_int(name: str, default: int) -> int:
         return default
 
 
+def _normalise_workspace(candidate: Path) -> Path:
+    """
+    Turn any workspace path into the one canonical form the whole app uses.
+
+    Expands `~`, makes a relative path absolute against the project root, and
+    then — importantly — resolves it.
+
+    The resolve step is what makes this work on macOS. There, the paths people
+    reach for first are symlinks: `/tmp` points at `/private/tmp` and `/var` at
+    `/private/var`. `Path.resolve()` follows those, so an unresolved workspace
+    and a resolved one are two different strings naming the same directory.
+
+    That matters because `agentkit.safety` always resolves before checking, and
+    the file tools then compare their results against `config.workspace`. If
+    those two disagree, `Path.relative_to` raises ValueError and tools like
+    `list_files` break — on a Mac only. Linux has no symlink on those paths, so
+    the bug is invisible there and in Linux-only CI.
+
+    Resolving once, here, means every layer agrees on the workspace's name.
+    """
+    candidate = candidate.expanduser()
+    if not candidate.is_absolute():
+        candidate = PROJECT_ROOT / candidate
+    # strict=False: the workspace may not exist yet — we create it just after.
+    return candidate.resolve()
+
+
 @dataclass(frozen=True)
 class Config:
     """Immutable snapshot of every setting the agents care about."""
@@ -65,16 +92,10 @@ class Config:
         """
         load_dotenv(PROJECT_ROOT / ".env")
 
-        workspace = Path(
-            os.getenv("AGENT_WORKSPACE", str(PROJECT_ROOT / "workspace"))
-        ).expanduser()
-        if not workspace.is_absolute():
-            workspace = (PROJECT_ROOT / workspace).resolve()
-
         config = cls(
             api_key=os.getenv("ANTHROPIC_API_KEY"),
             model=os.getenv("AGENT_MODEL", "claude-sonnet-5"),
-            workspace=workspace,
+            workspace=Path(os.getenv("AGENT_WORKSPACE", str(PROJECT_ROOT / "workspace"))),
             dry_run=_env_bool("AGENT_DRY_RUN", True),
             max_steps=_env_int("AGENT_MAX_STEPS", 25),
             state_dir=PROJECT_ROOT / ".state",
@@ -87,6 +108,14 @@ class Config:
             from dataclasses import replace
 
             config = replace(config, **overrides)  # type: ignore[arg-type]
+
+        # Normalise the workspace *after* overrides, so a path is treated the
+        # same however it arrived — environment, --workspace flag, or a test.
+        # Doing it before would leave overrides unnormalised, which is a bug
+        # that only shows on macOS (see _normalise_workspace).
+        from dataclasses import replace
+
+        config = replace(config, workspace=_normalise_workspace(config.workspace))
 
         config.workspace.mkdir(parents=True, exist_ok=True)
         config.state_dir.mkdir(parents=True, exist_ok=True)

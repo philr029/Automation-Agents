@@ -9,13 +9,22 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
-      # Don't cancel 3.12 just because 3.11 failed — seeing both results
-      # tells you whether a break is version-specific.
+      # Don't cancel the other jobs when one fails — seeing every result
+      # tells you whether a break is version- or platform-specific.
       fail-fast: false
       matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
         python-version: ["3.11", "3.12", "3.13"]
+        # macOS runners are the scarce ones, and a platform bug shows up on
+        # any Python version. Test the full version matrix on Linux, and
+        # just the oldest and newest supported on macOS and Windows.
+        exclude:
+          - os: macos-latest
+            python-version: "3.12"
+          - os: windows-latest
+            python-version: "3.12"
 
     steps:
       - uses: actions/checkout@v4
@@ -39,3 +48,6 @@ jobs:
         # A smoke test that catches import errors the unit tests miss,
         # since --list imports every agent and toolkit in the project.
         run: python main.py --list
+
+      - name: Check the pipeline CLI starts
+        run: python pipelines.py --list

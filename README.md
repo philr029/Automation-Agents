@@ -256,13 +256,30 @@ Widen the allowlist by adding entries to it — never by removing the check.
 python -m unittest discover -s tests -v
 ```
 
-44 tests covering schema generation, the sandbox, argument injection, the
+49 tests covering schema generation, the sandbox, argument injection, the
 agent loop itself (via a scripted fake client), document parsing, and the
 delivery tools' safety behaviour. They never touch the network and need no
 API key, so they run in well under a second and cost nothing.
 
-They run in CI on every push and pull request across Python 3.11, 3.12 and
-3.13 — see `.github/workflows/tests.yml`.
+They run in CI on every push and pull request across **macOS, Linux and
+Windows** on Python 3.11–3.13 — see `.github/workflows/tests.yml`.
+
+---
+
+## Platform support
+
+Runs on macOS, Linux and Windows. Pure Python, no compiled extensions.
+
+Two things are worth knowing if you're on a Mac:
+
+- **Symlinked workspaces work.** On macOS `/tmp` is a symlink to
+  `/private/tmp`, and `/var` to `/private/var`. The config normalises the
+  workspace path once (`_normalise_workspace` in `core/config.py`) so every
+  layer agrees on its name. Without that, `list_files` raised `ValueError` on
+  a Mac and worked fine on Linux — which is why CI now runs on macOS too.
+- **Console output degrades gracefully.** The transcript uses box-drawing
+  characters and emoji where the terminal can encode them, and falls back to
+  plain ASCII where it can't, rather than crashing on a decorative character.
 
 ---
 

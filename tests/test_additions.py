@@ -237,3 +237,76 @@ class TestExpandedLibrary(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
+
+
+class TestMacOSPathHandling(unittest.TestCase):
+    """
+    Regression tests for the symlinked-workspace bug.
+
+    On macOS the paths people reach for first are symlinks: /tmp resolves to
+    /private/tmp and /var to /private/var. Linux has no symlink there, so a
+    workspace whose path contains one is a situation Linux-only CI never
+    produces — these tests build it explicitly with os.symlink so the bug
+    cannot come back on any platform.
+    """
+
+    def setUp(self) -> None:
+        self.tmp = tempfile.TemporaryDirectory()
+        base = Path(self.tmp.name)
+        self.real = base / "private" / "work"
+        self.real.mkdir(parents=True)
+        self.link = base / "work"
+        try:
+            os.symlink(self.real, self.link)      # mimics /tmp -> /private/tmp
+        except (OSError, NotImplementedError) as exc:
+            # Windows only permits symlinks for an administrator or with
+            # Developer Mode on. Skip rather than fail: this is a macOS
+            # regression test, and it still runs on Linux and macOS CI.
+            self.tmp.cleanup()
+            self.skipTest(f"cannot create symlinks on this platform: {exc}")
+        (self.real / "note.md").write_text("hello world", encoding="utf-8")
+
+    def tearDown(self) -> None:
+        self.tmp.cleanup()
+
+    def test_workspace_is_resolved_even_when_passed_as_an_override(self) -> None:
+        # The original bug: normalisation ran before overrides were applied,
+        # so --workspace and test overrides skipped it entirely.
+        config = Config.load(workspace=self.link, dry_run=False)
+        self.assertEqual(config.workspace, self.real.resolve())
+
+    def test_relative_workspace_is_resolved_too(self) -> None:
+        config = Config.load(workspace=Path("workspace"), dry_run=True)
+        self.assertTrue(config.workspace.is_absolute())
+        self.assertEqual(config.workspace, config.workspace.resolve())
+
+    def test_list_files_works_through_a_symlinked_workspace(self) -> None:
+        from toolkits import files
+
+        config = Config.load(workspace=self.link, dry_run=False)
+        # This raised ValueError before the fix, on macOS only.
+        self.assertIn("note.md", files.list_files(config=config))
+
+    def test_every_path_tool_survives_a_symlinked_workspace(self) -> None:
+        from toolkits import data, documents, files
+
+        config = Config.load(workspace=self.link, dry_run=False)
+        (self.real / "rows.csv").write_text("a,b\n1,2\n", encoding="utf-8")
+
+        self.assertIn("hello", files.read_file(config=config, path="note.md"))
+        self.assertIn("note.md", files.search_files(config=config, query="hello"))
+        self.assertIn("a | b", data.read_csv(config=config, path="rows.csv"))
+        self.assertIn("note.md", documents.list_documents(config=config))
+        files.write_file(config=config, path="sub/new.txt", content="x")
+        self.assertTrue((self.real / "sub" / "new.txt").exists())
+
+    def test_sandbox_still_blocks_escapes_through_a_symlink(self) -> None:
+        # The fix must not have widened the sandbox — resolving more paths
+        # could in principle have let something through.
+        from agentkit.safety import SandboxViolation
+        from toolkits import files
+
+        config = Config.load(workspace=self.link, dry_run=False)
+        for escape in ("../../../etc/passwd", "/etc/passwd", str(self.real.parent)):
+            with self.assertRaises(SandboxViolation, msg=f"{escape} was not blocked"):
+                files.read_file(config=config, path=escape)
