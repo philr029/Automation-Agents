@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Nineteen browser tools for building and shipping AI agents: audit tool schemas for security holes, plan a context budget, explain a cron expression, diff two prompts, check contrast, and more. Nothing leaves the page.">
+<meta name="description" content="Twenty-four browser tools for building and shipping AI agents: audit tool schemas for security holes, build an eval set, plan RAG chunking, budget latency, check grounding, and more. Nothing leaves the page.">
 <meta name="color-scheme" content="light dark">
 <meta property="og:title" content="AI Builder's Toolbox">
-<meta property="og:description" content="Nineteen tools for building agents. Paste your tools, get concrete problems with concrete fixes. Nothing is uploaded.">
+<meta property="og:description" content="Twenty-four tools for building agents, five of them built from what teams report actually breaks in production.">
 <meta property="og:type" content="website">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚙️</text></svg>">
 <style>*{box-sizing:border-box}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
@@ -743,6 +743,76 @@ a.path__row:hover { transform: translateY(-2px); box-shadow: var(--shadow-lift);
 .payload__f { font-size: 13px; color: var(--ink-soft); margin-top: 8px; }
 .payload__f b { color: var(--ink); font-weight: 600; }
 
+
+/* ============================================================
+   Reliability bench
+   ============================================================ */
+.tab4 {
+  cursor: pointer; font-size: 13px; font-weight: 500;
+  color: var(--ink-soft); background: none; border: 1px solid transparent;
+  border-radius: 980px; padding: 7px 14px;
+  transition: color .2s ease, background-color .2s ease, border-color .2s ease;
+}
+.tab4:hover { color: var(--ink); }
+.tab4[aria-selected="true"] { color: var(--accent); background: var(--accent-wash); border-color: var(--accent); }
+.panel4 { display: none; margin-top: 28px; }
+.panel4[data-open="true"] { display: block; }
+
+/* the citation strip under each intro */
+.because {
+  display: flex; gap: 10px; align-items: flex-start;
+  font-size: 13px; line-height: 1.55; color: var(--ink-soft);
+  border-left: 2px solid var(--accent); padding: 2px 0 2px 14px;
+  margin: 16px 0 22px;
+}
+.because b { color: var(--ink); font-weight: 600; }
+
+/* chunk viewer */
+.chunk {
+  border: 1px solid var(--hairline); border-radius: var(--r-sm);
+  padding: 11px 13px; margin-bottom: 8px; background: var(--surface);
+  font-size: 13px; line-height: 1.6;
+}
+.chunk__h {
+  display: flex; justify-content: space-between; gap: 10px;
+  font-family: "JetBrains Mono", monospace; font-size: 11px;
+  color: var(--ink-faint); margin-bottom: 7px;
+}
+.chunk__t { color: var(--ink); white-space: pre-wrap; word-break: break-word; }
+.chunk__ov { background: var(--accent-wash); border-radius: 3px; }
+.chunk--cut { border-color: rgba(255,159,10,.55); }
+.chunk__warn { color: #b25000; font-size: 12px; margin-top: 7px; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .chunk__warn { color: #ff9f0a; }
+}
+:root[data-theme="dark"] .chunk__warn { color: #ff9f0a; }
+
+/* eval cases */
+.evcase {
+  border: 1px solid var(--hairline); border-radius: var(--r-sm);
+  padding: 12px 14px; margin-bottom: 8px; background: var(--surface);
+}
+.evcase__h { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+.evcase__id { font-family: "JetBrains Mono", monospace; font-size: 11px; color: var(--accent); }
+.evcase__x { cursor: pointer; background: none; border: 0; color: var(--ink-faint); font-size: 15px; padding: 0 2px; }
+.evcase__x:hover { color: #d70015; }
+.evcase__in { font-size: 13.5px; color: var(--ink); margin-top: 5px; }
+.evcase__ex { font-size: 13px; color: var(--ink-soft); margin-top: 5px; }
+
+/* stacked latency bar */
+.lat { display: flex; height: 30px; border-radius: 8px; overflow: hidden; border: 1px solid var(--hairline); }
+.lat__seg { height: 100%; }
+.latkey { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 12px; }
+.latkey__i { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--code-dim); }
+.latkey__s { width: 10px; height: 10px; border-radius: 3px; }
+
+/* grounding */
+.gr { font-size: 14px; line-height: 1.8; color: var(--code-ink); }
+.gr__s { border-radius: 4px; padding: 1px 3px; }
+.gr__s--ok   { background: rgba(48,209,88,.16); }
+.gr__s--weak { background: rgba(255,159,10,.20); }
+.gr__s--bad  { background: rgba(255,69,58,.22); }
+
 /* ============================================================ Reveal */
 .reveal { opacity: 0; transform: translateY(18px); transition: opacity .6s ease, transform .6s cubic-bezier(.2,.7,.3,1); }
 .reveal.in { opacity: 1; transform: none; }
@@ -764,6 +834,7 @@ a.path__row:hover { transform: translateY(-2px); box-shadow: var(--shadow-lift);
       <a class="nav__link" href="#play">Play</a>
       <a class="nav__link" href="#workbench">Workbench</a>
       <a class="nav__link" href="#audit">Audit</a>
+      <a class="nav__link" href="#reliability">Reliability</a>
       <a class="nav__link" href="#utils">Utilities</a>
       <a class="nav__link" href="#path">Start here</a>
       <a class="nav__link" href="#learn">Learn</a>
@@ -1114,7 +1185,161 @@ Rules:
 </section>
 
 
-<section class="band section" id="utils">
+
+<section class="band section" id="reliability">
+  <div class="wrap">
+    <p class="eyebrow">Reliability bench</p>
+    <h2 class="h2">Built from what<br>actually breaks.</h2>
+    <p class="lead" style="margin-top:16px">I went and read what teams say goes wrong once agents reach production, then built a tool for each of the top answers. Every one below cites the finding it exists for.</p>
+
+    <div class="tabs" role="tablist" aria-label="Reliability tools">
+      <button class="tab4" role="tab" id="t4-eval" aria-controls="r-eval" aria-selected="true" type="button">Eval Set Builder</button>
+      <button class="tab4" role="tab" id="t4-chunk" aria-controls="r-chunk" aria-selected="false" type="button">Chunk Planner</button>
+      <button class="tab4" role="tab" id="t4-lat" aria-controls="r-lat" aria-selected="false" type="button">Latency Budget</button>
+      <button class="tab4" role="tab" id="t4-rel" aria-controls="r-rel" aria-selected="false" type="button">Reliability Math</button>
+      <button class="tab4" role="tab" id="t4-ground" aria-controls="r-ground" aria-selected="false" type="button">Grounding Check</button>
+    </div>
+
+    <!-- Eval set builder -->
+    <div class="panel4" id="r-eval" role="tabpanel" aria-labelledby="t4-eval" data-open="true">
+      <div class="because"><span>◆</span><span><b>Why this exists:</b> asked what the hardest part of LLM evaluation is, practitioners answer the same thing — <em>building the test cases</em>. The advice is 25–50 human-labelled cases with good/bad outcomes rather than metric scores. Nobody skips evals because running them is hard; they skip because writing the cases is.</span></div>
+      <div class="work">
+        <div class="work__in">
+          <div class="chips">
+            <button class="chip-btn" type="button" data-ev="triage">seed: triage agent</button>
+            <button class="chip-btn" type="button" data-ev="extract">seed: extraction agent</button>
+            <button class="chip-btn" type="button" data-ev="clear">clear</button>
+          </div>
+          <label class="field"><span class="field__k">Input — what the agent is given</span>
+            <textarea class="area" id="evIn" style="min-height:70px" spellcheck="false" aria-label="Case input"></textarea></label>
+          <label class="field"><span class="field__k">Good outcome — what a pass looks like, in behaviour not scores</span>
+            <textarea class="area" id="evGood" style="min-height:60px" spellcheck="false" aria-label="Good outcome"></textarea></label>
+          <label class="field"><span class="field__k">Bad outcome — the failure you actually fear</span>
+            <textarea class="area" id="evBad" style="min-height:60px" spellcheck="false" aria-label="Bad outcome"></textarea></label>
+          <div class="pairgrid">
+            <label class="field" style="margin:0"><span class="field__k">Category</span>
+              <input class="input" id="evCat" value="happy-path" spellcheck="false" aria-label="Category"></label>
+            <label class="field" style="margin:0"><span class="field__k">&nbsp;</span>
+              <button class="btn btn--primary" id="evAdd" type="button" style="width:100%;justify-content:center;padding:10px">Add case</button></label>
+          </div>
+          <div id="evCount"></div>
+        </div>
+        <div class="work__out" style="background:var(--ground-alt)">
+          <span class="work__label" style="color:var(--ink-faint)">Your set</span>
+          <div id="evCoverage"></div>
+          <div id="evList" style="max-height:340px;overflow-y:auto;margin-top:12px"></div>
+          <button class="copy" id="evCopy" type="button">Copy as JSON</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chunk planner -->
+    <div class="panel4" id="r-chunk" role="tabpanel" aria-labelledby="t4-chunk">
+      <div class="because"><span>◆</span><span><b>Why this exists:</b> chunking guidance converges on 400–512 tokens with 10–20% overlap as the default, and the gap between the best and worst strategy is reported at up to <b>9% recall</b>. The failure is invisible in code — you only see it by looking at where the boundaries actually landed.</span></div>
+      <div class="work">
+        <div class="work__in">
+          <div class="pairgrid">
+            <label class="field"><span class="field__k">Chunk size (tokens, estimated)</span>
+              <input class="input" id="chSize" type="number" min="32" step="32" value="450" aria-label="Chunk size"></label>
+            <label class="field"><span class="field__k">Overlap (%)</span>
+              <input class="input" id="chOv" type="number" min="0" max="50" step="5" value="15" aria-label="Overlap"></label>
+          </div>
+          <label class="field"><span class="field__k">Strategy</span>
+            <select class="input" id="chMode" aria-label="Strategy">
+              <option value="recursive">Recursive — paragraph, then sentence, then word</option>
+              <option value="sentence">Sentence — never split a sentence</option>
+              <option value="fixed">Fixed — cut at exactly N tokens</option>
+            </select></label>
+          <label class="field"><span class="field__k">Your document</span>
+            <textarea class="area" id="chIn" style="min-height:200px" spellcheck="false" aria-label="Document"></textarea></label>
+          <div id="chStats"></div>
+        </div>
+        <div class="work__out" style="background:var(--ground-alt)">
+          <span class="work__label" style="color:var(--ink-faint)">Chunks — overlap shaded, bad cuts flagged</span>
+          <div id="chOut" style="max-height:460px;overflow-y:auto"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Latency budget -->
+    <div class="panel4" id="r-lat" role="tabpanel" aria-labelledby="t4-lat">
+      <div class="because"><span>◆</span><span><b>Why this exists:</b> latency is reported as the second biggest production barrier, behind quality. The useful finding is where it comes from: <em>context bloat and step count cause more slowness than the model itself</em>, and users judge you on time-to-first-token, not total time.</span></div>
+      <div class="work">
+        <div class="work__in">
+          <div class="pairgrid">
+            <label class="field"><span class="field__k">Steps in the run</span><input class="input" id="laSteps" type="number" min="1" max="50" value="6" aria-label="Steps"></label>
+            <label class="field"><span class="field__k">Model TTFT per call (ms)</span><input class="input" id="laTtft" type="number" min="0" step="50" value="600" aria-label="TTFT"></label>
+            <label class="field"><span class="field__k">Output tokens per call</span><input class="input" id="laTok" type="number" min="1" step="50" value="300" aria-label="Output tokens"></label>
+            <label class="field"><span class="field__k">Generation speed (tokens/sec)</span><input class="input" id="laRate" type="number" min="1" step="5" value="60" aria-label="Rate"></label>
+            <label class="field"><span class="field__k">Tool execution per step (ms)</span><input class="input" id="laTool" type="number" min="0" step="50" value="400" aria-label="Tool time"></label>
+            <label class="field"><span class="field__k">Network round-trip (ms)</span><input class="input" id="laNet" type="number" min="0" step="10" value="80" aria-label="Network"></label>
+          </div>
+          <label class="pick" style="margin-top:6px"><input type="checkbox" id="laStream" checked><span>Stream the final answer <em>the user sees tokens as they arrive</em></span></label>
+        </div>
+        <div class="work__out">
+          <span class="work__label">Where the time goes</span>
+          <div class="lat" id="laBar"></div>
+          <div class="latkey" id="laKey"></div>
+          <div class="meter" id="laOut"></div>
+        </div>
+      </div>
+      <p class="note" style="margin-top:18px" id="laNote"></p>
+    </div>
+
+    <!-- Reliability math -->
+    <div class="panel4" id="r-rel" role="tabpanel" aria-labelledby="t4-rel">
+      <div class="because"><span>◆</span><span><b>Why this exists:</b> <em>error cascading across multi-step tasks</em> is named repeatedly as where agent development gets hard. The arithmetic is the whole lesson, and it is brutal enough that most people have not done it for their own agent.</span></div>
+      <div class="work">
+        <div class="work__in">
+          <label class="field"><span class="field__k">Per-step success rate (%)</span>
+            <input class="input" id="rlP" type="number" min="1" max="100" step="0.5" value="95" aria-label="Per-step success"></label>
+          <label class="field"><span class="field__k">Steps that must all succeed</span>
+            <input class="input" id="rlN" type="number" min="1" max="60" value="10" aria-label="Steps"></label>
+          <label class="field"><span class="field__k">Retries allowed per step</span>
+            <input class="input" id="rlR" type="number" min="0" max="5" value="0" aria-label="Retries"></label>
+          <label class="field"><span class="field__k">Runs per day</span>
+            <input class="input" id="rlD" type="number" min="1" step="10" value="200" aria-label="Runs per day"></label>
+          <div class="chips" style="margin-top:4px">
+            <button class="chip-btn" type="button" data-rel="95|10|0">95% × 10 steps</button>
+            <button class="chip-btn" type="button" data-rel="99|20|0">99% × 20 steps</button>
+            <button class="chip-btn" type="button" data-rel="95|10|1">with 1 retry</button>
+          </div>
+        </div>
+        <div class="work__out">
+          <span class="work__label">End to end</span>
+          <div class="rowlist" id="rlOut"></div>
+        </div>
+      </div>
+      <p class="note" style="margin-top:18px" id="rlNote"></p>
+    </div>
+
+    <!-- Grounding -->
+    <div class="panel4" id="r-ground" role="tabpanel" aria-labelledby="t4-ground">
+      <div class="because"><span>◆</span><span><b>Why this exists:</b> the hardest hallucination to catch is the <em>implicit</em> one — the answer reuses your source&#39;s vocabulary but quietly shifts what it means, so word-matching is fooled. This flags the easier half honestly: sentences whose content words barely appear in the source at all.</span></div>
+      <div class="work">
+        <div class="work__in">
+          <label class="field"><span class="field__k">Source — the context you retrieved</span>
+            <textarea class="area" id="grSrc" style="min-height:180px" spellcheck="false" aria-label="Source"></textarea></label>
+          <label class="field"><span class="field__k">Answer — what the model produced</span>
+            <textarea class="area" id="grAns" style="min-height:140px" spellcheck="false" aria-label="Answer"></textarea></label>
+          <div id="grStats"></div>
+        </div>
+        <div class="work__out">
+          <span class="work__label">Sentence grounding</span>
+          <div class="gr" id="grOut"></div>
+          <div class="latkey" style="margin-top:16px">
+            <span class="latkey__i"><span class="latkey__s" style="background:rgba(48,209,88,.5)"></span>well supported</span>
+            <span class="latkey__i"><span class="latkey__s" style="background:rgba(255,159,10,.6)"></span>thin</span>
+            <span class="latkey__i"><span class="latkey__s" style="background:rgba(255,69,58,.6)"></span>little support</span>
+          </div>
+        </div>
+      </div>
+      <p class="note" style="margin-top:18px">Lexical only, and it says so: a red sentence is worth reading, a green one is <em>not</em> proof of truth. A paraphrase that inverts a meaning while keeping the words scores green — that case needs a model, or a human.</p>
+    </div>
+  </div>
+</section>
+
+<section class="band band--alt section" id="utils">
   <div class="wrap">
     <p class="eyebrow">Utilities</p>
     <h2 class="h2">Twelve more,<br>for the day-to-day.</h2>
@@ -1333,7 +1558,7 @@ Rules:
   </div>
 </section>
 
-<section class="band band--alt section" id="path">
+<section class="band section" id="path">
   <div class="wrap">
     <p class="eyebrow">Start here</p>
     <h2 class="h2">Five steps, in order.</h2>
@@ -1369,7 +1594,7 @@ Rules:
   </div>
 </section>
 
-<section class="band section" id="learn">
+<section class="band band--alt section" id="learn">
   <div class="wrap">
     <p class="eyebrow">Learn to code</p>
     <h2 class="h2">Where to actually start.</h2>
@@ -1434,7 +1659,7 @@ Rules:
   </div>
 </section>
 
-<section class="band band--alt section" id="ai">
+<section class="band section" id="ai">
   <div class="wrap">
     <p class="eyebrow">Build with AI</p>
     <h2 class="h2">From using models<br>to building on them.</h2>
@@ -1487,7 +1712,7 @@ Rules:
   </div>
 </section>
 
-<section class="band section" id="tools">
+<section class="band band--alt section" id="tools">
   <div class="wrap">
     <p class="eyebrow">Everyday tools</p>
     <h2 class="h2">What you'll have open.</h2>
@@ -1540,7 +1765,7 @@ Rules:
   </div>
 </section>
 
-<section class="band band--alt section" id="project">
+<section class="band section" id="project">
   <div class="wrap">
     <p class="eyebrow">The project</p>
     <div class="split">
@@ -1580,7 +1805,7 @@ Rules:
 </section>
 
 
-<section class="band section" id="build">
+<section class="band band--alt section" id="build">
   <div class="wrap">
     <p class="eyebrow">How it was built</p>
     <h2 class="h2">The decisions,<br>and what they cost.</h2>
@@ -3327,6 +3552,369 @@ Rules:
       : "";
   }
   if ($("csIn")) { ["csIn","csList"].forEach(function(id){on(id,"input",runCase);}); runCase(); }
+})();
+</script>
+
+
+<script>
+/* ============================================================
+   Reliability bench. Each tool answers a problem teams actually
+   report once agents reach production.
+   ============================================================ */
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  function esc(t){ return String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+  function row(k,v){ return '<div class="rowitem"><span class="rowitem__k">'+k+'</span><span class="rowitem__v">'+v+"</span></div>"; }
+  function on(id,ev,fn){ var el=$(id); if(el) el.addEventListener(ev,fn); }
+  var nf=function(n){ return Number(n).toLocaleString("en-US"); };
+  // Same ratio the token estimator uses, so the two tools agree.
+  var TOK = 3.8;
+
+  var tabs = Array.prototype.slice.call(document.querySelectorAll(".tab4"));
+  function pick(t){
+    tabs.forEach(function(x){
+      var open=x===t;
+      x.setAttribute("aria-selected", open?"true":"false");
+      var pn=$(x.getAttribute("aria-controls"));
+      if(pn) pn.setAttribute("data-open", open?"true":"false");
+    });
+  }
+  tabs.forEach(function(t){
+    t.addEventListener("click",function(){ pick(t); });
+    t.addEventListener("keydown",function(e){
+      var i=tabs.indexOf(t),n=tabs.length,nx=null;
+      if(e.key==="ArrowRight") nx=tabs[(i+1)%n];
+      if(e.key==="ArrowLeft")  nx=tabs[(i-1+n)%n];
+      if(nx){ pick(nx); nx.focus(); }
+    });
+  });
+
+  /* ============ 1. EVAL SET BUILDER ============ */
+  var SEEDS = {
+    triage: [
+      ["A message saying the production database is at 94% capacity, sent at 2am.","Classified URGENT. Names the capacity figure. Drafts a reply that does not promise a fix time the source does not support.","Classified FYI because the tone was calm, or invents a remediation deadline.","happy-path"],
+      ["A polite but furious message about a typo on a marketing page.","Classified low priority. Tone of the message does not raise its urgency.","Classified URGENT because the sender is angry.","adversarial"],
+      ["An automated build-success notification.","Classified IGNORE. No reply drafted.","Drafts a reply to a robot.","noise"],
+      ["An empty file with a .eml extension.","Reports that the file has no content and moves on.","Invents a message, or crashes the run.","edge-case"],
+      ["A message in a language the agent was not told to expect.","Handles it or says plainly it cannot; does not silently mistranslate.","Guesses the meaning and classifies on the guess.","edge-case"]
+    ],
+    extract: [
+      ["An invoice with the total in the footer and a different figure in a table above it.","Extracts the footer total. Flags the ambiguity in its answer.","Silently picks one figure with no note.","adversarial"],
+      ["An invoice with no due date anywhere.","Leaves due_date empty.","Fills the field with a plausible date.","happy-path"],
+      ["A scanned invoice with no text layer.","Reports it needs OCR rather than returning an empty row.","Returns a row of empty strings as if extraction succeeded.","edge-case"],
+      ["Twenty invoices where three use DD/MM and the rest MM/DD.","States which reading it chose and why.","Normalises silently, producing wrong dates for three rows.","adversarial"]
+    ]
+  };
+  var cases = [];
+  function renderEval(){
+    $("evList").innerHTML = cases.length ? cases.map(function(c,i){
+      return '<div class="evcase"><div class="evcase__h"><span class="evcase__id">case_'+String(i+1).padStart(2,"0")+" · "+esc(c.category)+
+        '</span><button class="evcase__x" type="button" data-rm="'+i+'" aria-label="Remove case">&times;</button></div>'+
+        '<div class="evcase__in">'+esc(c.input)+"</div>"+
+        '<div class="evcase__ex"><b style="color:var(--ink)">Pass:</b> '+esc(c.good)+"</div>"+
+        (c.bad?'<div class="evcase__ex"><b style="color:var(--ink)">Fail:</b> '+esc(c.bad)+"</div>":"")+"</div>";
+    }).join("") : '<p class="note">No cases yet. Add one, or load a seed set to see the shape.</p>';
+
+    $("evList").querySelectorAll("[data-rm]").forEach(function(b){
+      b.addEventListener("click",function(){ cases.splice(+b.getAttribute("data-rm"),1); renderEval(); });
+    });
+
+    var cats={}; cases.forEach(function(c){ cats[c.category]=(cats[c.category]||0)+1; });
+    var n=cases.length;
+    // 25-50 labelled cases is the figure practitioners keep landing on.
+    var cls = n>=25?"a":n>=10?"b":n>=4?"c":"d";
+    var msg = n>=25 ? "A usable set. Keep it versioned next to the prompt it tests."
+      : n>=10 ? "Enough to catch regressions. The advice is 25–50 before you trust a pass rate."
+      : n>=1  ? "A start. Aim for 25–50, and weight it toward the failures you actually fear."
+      : "Empty. The hardest part of evals is exactly this — so start with three bad outcomes you have already seen.";
+    $("evCoverage").innerHTML = '<div class="grade grade--'+cls+'"><span class="grade__l">'+n+"</span>"+
+      '<span><span class="grade__t">'+n+" case"+(n===1?"":"s")+"</span>"+
+      '<span class="grade__s">'+msg+"</span></span></div>";
+    var missing=["happy-path","edge-case","adversarial"].filter(function(k){ return !cats[k]; });
+    $("evCount").innerHTML = n
+      ? '<p class="note" style="margin-top:12px">'+Object.keys(cats).map(function(k){return k+": "+cats[k];}).join(" · ")+
+        (missing.length?" — nothing yet under <strong>"+missing.join(", ")+"</strong>. A set of only happy paths passes forever and tells you nothing.":"")+"</p>"
+      : "";
+  }
+  function addCase(){
+    var i=$("evIn").value.trim(), g=$("evGood").value.trim();
+    if(!i||!g) return;
+    cases.push({input:i, good:g, bad:$("evBad").value.trim(), category:$("evCat").value.trim()||"uncategorised"});
+    $("evIn").value=""; $("evGood").value=""; $("evBad").value="";
+    renderEval();
+  }
+  if ($("evAdd")) {
+    on("evAdd","click",addCase);
+    document.querySelectorAll("[data-ev]").forEach(function(b){
+      b.addEventListener("click",function(){
+        var k=b.getAttribute("data-ev");
+        if(k==="clear"){ cases=[]; }
+        else cases = SEEDS[k].map(function(r){ return {input:r[0],good:r[1],bad:r[2],category:r[3]}; });
+        renderEval();
+      });
+    });
+    on("evCopy","click",function(){
+      var json=JSON.stringify({suite:"agent-eval", cases:cases},null,2);
+      var btn=$("evCopy");
+      var done=function(){ btn.textContent="Copied"; setTimeout(function(){btn.textContent="Copy as JSON";},1600); };
+      if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(json).then(done,done);
+      else done();
+    });
+    cases = SEEDS.triage.map(function(r){ return {input:r[0],good:r[1],bad:r[2],category:r[3]}; });
+    renderEval();
+  }
+
+  /* ============ 2. CHUNK PLANNER ============ */
+  var SAMPLE_DOC = "Retrieval quality is decided long before the model sees anything. It is decided when the document is cut.\n\nA chunk that ends mid-sentence loses the clause that made it meaningful. A chunk holding three unrelated ideas produces an embedding that is close to none of them. Both failures look identical from the outside: the retriever returns something, the model answers, and the answer is subtly wrong.\n\nOverlap exists to soften boundaries. Ten to twenty percent is the usual starting point. Too little and an idea split across a boundary is lost from both chunks; too much and you pay to store and search near-duplicates, and the retriever returns five chunks that all say the same thing.\n\nThe only reliable way to tune this is to look at the actual chunks your settings produce, on your actual documents, and read the boundaries.";
+
+  function splitSentences(t){
+    // Mask decimal points before splitting, or "4.2 million" becomes two
+    // sentences and the fragment reads as unsupported.
+    var masked = t.replace(/(\d)\.(\d)/g, "$1\u0000$2");
+    var parts = masked.match(/[^.!?\n]+[.!?]*\s*/g) || [masked];
+    return parts.map(function (x) { return x.replace(/\u0000/g, "."); });
+  }
+
+  function chunkText(text, sizeTok, overlapPct, mode){
+    var sizeCh = Math.max(40, Math.round(sizeTok*TOK));
+    var ovCh   = Math.round(sizeCh*(overlapPct/100));
+    var out=[];
+
+    if(mode==="fixed"){
+      var step=Math.max(1,sizeCh-ovCh);
+      for(var i=0;i<text.length;i+=step){
+        var piece=text.slice(i,i+sizeCh);
+        out.push({text:piece, cut: i+sizeCh<text.length && !/[\s.!?]$/.test(piece)});
+        if(i+sizeCh>=text.length) break;
+      }
+      return out;
+    }
+
+    // sentence + recursive both build up whole sentences; recursive also
+    // prefers to break at a blank line when one is available.
+    var units = mode==="recursive" ? text.split(/\n\s*\n/).map(function(p){return p+"\n\n";}) : [text];
+    var sentences=[];
+    units.forEach(function(u){ splitSentences(u).forEach(function(x){ sentences.push(x); }); });
+
+    var cur="", carry="";
+    sentences.forEach(function(sn){
+      if((cur+sn).length>sizeCh && cur){
+        out.push({text:carry+cur, cut:false, overlap:carry.length});
+        // carry the tail of this chunk into the next one
+        carry = ovCh>0 ? cur.slice(Math.max(0,cur.length-ovCh)) : "";
+        cur="";
+      }
+      cur+=sn;
+    });
+    if(cur.trim()) out.push({text:carry+cur, cut:false, overlap:carry.length});
+    return out;
+  }
+
+  function runChunk(){
+    var text=$("chIn").value;
+    var size=Math.max(32,+$("chSize").value||450);
+    var ov=Math.min(50,Math.max(0,+$("chOv").value||0));
+    var mode=$("chMode").value;
+    if(!text.trim()){ $("chOut").innerHTML='<p class="note">Paste a document.</p>'; $("chStats").innerHTML=""; return; }
+
+    var chunks=chunkText(text,size,ov,mode);
+    var cuts=0;
+    $("chOut").innerHTML = chunks.map(function(c,i){
+      var tok=Math.ceil(c.text.length/TOK);
+      if(c.cut) cuts++;
+      var body;
+      if(c.overlap){
+        body='<span class="chunk__ov">'+esc(c.text.slice(0,c.overlap))+"</span>"+esc(c.text.slice(c.overlap));
+      } else body=esc(c.text);
+      return '<div class="chunk'+(c.cut?" chunk--cut":"")+'">'+
+        '<div class="chunk__h"><span>chunk '+(i+1)+"</span><span>~"+tok+" tokens · "+c.text.length+" chars</span></div>"+
+        '<div class="chunk__t">'+body+"</div>"+
+        (c.cut?'<div class="chunk__warn">Cut mid-sentence — the clause that gave this meaning is in the next chunk.</div>':"")+
+        "</div>";
+    }).join("");
+
+    var toks=chunks.map(function(c){ return Math.ceil(c.text.length/TOK); });
+    var avg=Math.round(toks.reduce(function(a,b){return a+b;},0)/toks.length);
+    var stored=chunks.reduce(function(a,c){return a+c.text.length;},0);
+    var bloat=((stored/text.length)-1)*100;
+
+    var advice="";
+    if(size<200) advice="At "+size+" tokens a chunk rarely holds a complete idea. The common default sits at 400–512.";
+    else if(size>900) advice="At "+size+" tokens a chunk usually holds several ideas, and the embedding ends up close to none of them.";
+    else if(ov===0) advice="No overlap: an idea straddling a boundary is lost from both chunks. 10–20% is the usual starting point.";
+    else if(ov>25) advice="At "+ov+"% overlap you are storing and searching a lot of near-duplicate text, and the retriever will return chunks that repeat each other.";
+    else advice="Size and overlap are both in the commonly recommended range. Now read the boundaries above — that is the part no rule of thumb can do for you.";
+
+    $("chStats").innerHTML = '<div class="rowlist" style="margin-top:14px">'+
+      row("Chunks", chunks.length) + row("Average size", "~"+avg+" tokens") +
+      row("Cut mid-sentence", cuts) +
+      row("Storage overhead from overlap", (bloat<0?0:bloat).toFixed(0)+"%") +
+      "</div><p class=\"note\" style=\"margin-top:12px\">"+advice+"</p>";
+  }
+  if ($("chIn")) {
+    $("chIn").value = SAMPLE_DOC;
+    ["chSize","chOv","chIn"].forEach(function(id){ on(id,"input",runChunk); });
+    on("chMode","change",runChunk);
+    runChunk();
+  }
+
+  /* ============ 3. LATENCY BUDGET ============ */
+  var LAT_COLOURS = ["#2997ff","#30d158","#ff9f0a","#bf5af2"];
+  function runLat(){
+    var steps=Math.max(1,+$("laSteps").value||1);
+    var ttft=+$("laTtft").value||0;
+    var tok=+$("laTok").value||0;
+    var rate=Math.max(1,+$("laRate").value||1);
+    var tool=+$("laTool").value||0;
+    var net=+$("laNet").value||0;
+    var stream=$("laStream").checked;
+
+    var genPerCall = (tok/rate)*1000;
+    var totalTtft = ttft*steps;
+    var totalGen  = genPerCall*steps;
+    var totalTool = tool*(steps-1);      // the final step answers rather than calling a tool
+    var totalNet  = net*2*steps;
+    var total = totalTtft+totalGen+totalTool+totalNet;
+
+    // What the user waits for before seeing anything: everything up to the
+    // final call's first token. Streaming stops the last generation counting.
+    var perceived = stream
+      ? total - genPerCall
+      : total;
+
+    var segs=[["Model TTFT",totalTtft],["Generation",totalGen],["Tool execution",totalTool],["Network",totalNet]];
+    $("laBar").innerHTML = segs.map(function(s,i){
+      return '<span class="lat__seg" style="width:'+((s[1]/total)*100).toFixed(2)+'%;background:'+LAT_COLOURS[i]+'"></span>';
+    }).join("");
+    $("laKey").innerHTML = segs.map(function(s,i){
+      return '<span class="latkey__i"><span class="latkey__s" style="background:'+LAT_COLOURS[i]+'"></span>'+
+             s[0]+" "+(s[1]/1000).toFixed(1)+"s ("+((s[1]/total)*100).toFixed(0)+"%)</span>";
+    }).join("");
+    $("laOut").innerHTML =
+      '<div class="ro"><span class="ro__k">Perceived wait '+(stream?"(to first token)":"(no streaming)")+'</span><span class="ro__v ro__v--big">'+(perceived/1000).toFixed(1)+"s</span></div>"+
+      '<div class="ro"><span class="ro__k">Total run time</span><span class="ro__v">'+(total/1000).toFixed(1)+"s</span></div>"+
+      '<div class="ro"><span class="ro__k">Per step</span><span class="ro__v">'+(total/steps/1000).toFixed(2)+"s</span></div>"+
+      '<div class="ro"><span class="ro__k">One fewer step saves</span><span class="ro__v">'+((ttft+genPerCall+tool+net*2)/1000).toFixed(2)+"s</span></div>";
+
+    var biggest = segs.slice().sort(function(a,b){return b[1]-a[1];})[0];
+    var note = "<strong>"+biggest[0]+"</strong> dominates at "+((biggest[1]/total)*100).toFixed(0)+"% of the run. ";
+    note += steps>1
+      ? "Every one of these costs is paid <strong>"+steps+" times</strong> — which is why cutting a step buys more than any model swap. "
+      : "";
+    note += stream
+      ? "Streaming hides the final generation, so the user waits "+(perceived/1000).toFixed(1)+"s instead of "+(total/1000).toFixed(1)+"s."
+      : "<strong>Without streaming the user waits for all of it.</strong> Turning streaming on is usually the single biggest perceived win available.";
+    $("laNote").innerHTML=note;
+  }
+  if ($("laSteps")) {
+    ["laSteps","laTtft","laTok","laRate","laTool","laNet"].forEach(function(id){ on(id,"input",runLat); });
+    on("laStream","change",runLat);
+    runLat();
+  }
+
+  /* ============ 4. RELIABILITY MATH ============ */
+  function runRel(){
+    var p=Math.min(100,Math.max(0.1,+$("rlP").value||95))/100;
+    var n=Math.max(1,+$("rlN").value||1);
+    var r=Math.max(0,+$("rlR").value||0);
+    var d=Math.max(1,+$("rlD").value||1);
+
+    // With r retries a step fails only if every attempt fails.
+    var pStep = 1-Math.pow(1-p, r+1);
+    var end = Math.pow(pStep, n);
+    var failsPerDay = d*(1-end);
+    // How high does a single step have to be for 95% end-to-end?
+    var needed = Math.pow(0.95, 1/n);
+
+    $("rlOut").innerHTML =
+      '<div class="rowitem"><span class="rowitem__k">End-to-end success</span><span class="rowitem__v ro__v--big" style="font-size:22px;color:'+
+        (end>=0.95?"#30d158":end>=0.8?"#ff9f0a":"#ff453a")+'">'+(end*100).toFixed(1)+"%</span></div>"+
+      row("Effective per-step (with retries)", (pStep*100).toFixed(2)+"%") +
+      row("Failed runs per day", failsPerDay.toFixed(1)+" of "+nf(d)) +
+      row("Failed runs per month", Math.round(failsPerDay*30).toLocaleString("en-US")) +
+      row("Per-step rate needed for 95% end-to-end", (needed*100).toFixed(2)+"%") +
+      row("Longest chain that stays above 95%", Math.max(0,Math.floor(Math.log(0.95)/Math.log(pStep))));
+
+    var note;
+    if(end>=0.95) note="<strong>"+(end*100).toFixed(1)+"% end-to-end.</strong> That holds. Note how narrow the margin is: "+
+      (needed*100).toFixed(2)+"% per step is the floor at this length, and steps are not free.";
+    else note="<strong>"+(end*100).toFixed(1)+"% end-to-end</strong> — that is "+failsPerDay.toFixed(0)+
+      " failed runs a day at "+nf(d)+" runs. A "+(p*100).toFixed(1)+"% step feels fine in isolation and is not: "+
+      "reliability compounds downward, so you need <strong>"+(needed*100).toFixed(2)+
+      "%</strong> per step for 95% overall"+(r===0?", or add a retry, which is the cheapest fix here.":".");
+    $("rlNote").innerHTML=note;
+  }
+  if ($("rlP")) {
+    ["rlP","rlN","rlR","rlD"].forEach(function(id){ on(id,"input",runRel); });
+    document.querySelectorAll("[data-rel]").forEach(function(b){
+      b.addEventListener("click",function(){
+        var v=b.getAttribute("data-rel").split("|");
+        $("rlP").value=v[0]; $("rlN").value=v[1]; $("rlR").value=v[2]; runRel();
+      });
+    });
+    runRel();
+  }
+
+  /* ============ 5. GROUNDING ============ */
+  var STOP = {};
+  ("the a an and or but of to in on at for with is are was were be been it its this that these those as by from not no "+
+   "have has had do does did will would can could should may might must if then than there their they them we you i he she"
+  ).split(" ").forEach(function(w){ STOP[w]=true; });
+
+  function content(t){
+    // Numbers and words need separate patterns. One combined class either
+    // loses "4.2" or swallows the full stop after "41", and then the same
+    // figure in source and answer no longer matches itself.
+    return (t.toLowerCase().match(/\d+(?:\.\d+)?|[a-z][a-z'-]*/g)||[]).filter(function(w){
+      // Keep every number whatever its length. "34", "41" and "12" are the
+      // most checkable facts in a sentence, and a length filter binned them.
+      if (/\d/.test(w)) return true;
+      return w.length>2 && !STOP[w];
+    });
+  }
+  function runGround(){
+    var src=$("grSrc").value, ans=$("grAns").value;
+    if(!src.trim()||!ans.trim()){ $("grOut").innerHTML='<p class="note">Paste a source and an answer.</p>'; $("grStats").innerHTML=""; return; }
+    var pool={}; content(src).forEach(function(w){ pool[w]=true; });
+
+    var sentences = splitSentences(ans);
+    var scored = sentences.map(function(sn){
+      var w=content(sn);
+      if(!w.length) return {text:sn, score:1, n:0};
+      var hit=w.filter(function(x){ return pool[x]; }).length;
+      return {text:sn, score:hit/w.length, n:w.length, missing:w.filter(function(x){return !pool[x];})};
+    });
+
+    $("grOut").innerHTML = scored.map(function(x){
+      var cls = x.n===0 ? "ok" : x.score>=0.7 ? "ok" : x.score>=0.45 ? "weak" : "bad";
+      return '<span class="gr__s gr__s--'+cls+'" title="'+(x.n?Math.round(x.score*100)+"% of content words appear in the source":"")+'">'+esc(x.text)+"</span>";
+    }).join("");
+
+    var real=scored.filter(function(x){return x.n>0;});
+    var bad=real.filter(function(x){return x.score<0.45;});
+    var weak=real.filter(function(x){return x.score>=0.45&&x.score<0.7;});
+    var avg=real.length? real.reduce(function(a,b){return a+b.score;},0)/real.length : 1;
+    var novel={};
+    bad.forEach(function(x){ (x.missing||[]).forEach(function(w){ novel[w]=true; }); });
+    var novelList=Object.keys(novel).slice(0,12);
+
+    $("grStats").innerHTML='<div class="rowlist" style="margin-top:14px">'+
+      row("Sentences", real.length) +
+      row("Average grounding", Math.round(avg*100)+"%") +
+      row("Little support", bad.length) +
+      row("Thin", weak.length) +
+      "</div>"+
+      (novelList.length
+        ? '<p class="note" style="margin-top:12px">Terms in flagged sentences that never appear in the source: <strong>'+
+          novelList.map(esc).join(", ")+"</strong>. Worth checking each one is not invented.</p>"
+        : '<p class="note" style="margin-top:12px">Every content word in the answer appears somewhere in the source. That rules out the blatant case — not a shifted meaning.</p>');
+  }
+  if ($("grSrc")) {
+    $("grSrc").value="The Q3 report shows revenue of 4.2 million pounds, up 12% on Q2. Headcount grew from 34 to 41. The Manchester office opened in August. Churn was 3.1%, down from 3.8%.";
+    $("grAns").value="Revenue reached 4.2 million pounds in Q3, a 12% rise on the previous quarter. Headcount went from 34 to 41 people. The Manchester office opened in August. The board has approved a Series B round led by Sequoia to fund further expansion.";
+    ["grSrc","grAns"].forEach(function(id){ on(id,"input",runGround); });
+    runGround();
+  }
 })();
 </script>
 
