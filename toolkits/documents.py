@@ -115,7 +115,10 @@ def _parse_page_range(pages: str, total: int) -> list[int]:
     # Clamp to the document rather than erroring: asking for pages 1-100 of a
     # 10-page PDF should give you the 10 pages, not a complaint.
     start = max(1, start)
-    end = min(total, end)
+    # Clamp the end up as well as down. Without the lower bound, pages="0"
+    # gave start=1, end=0 — an empty range from something the docstring
+    # promises to clamp.
+    end = max(1, min(total, end))
     if start > end:
         raise ValueError(f"Page range {pages!r} is empty for a {total}-page document.")
     return list(range(start - 1, end))
@@ -144,7 +147,11 @@ def read_docx(config: Config, path: str, max_chars: int = 20000) -> str:
     except (zipfile.BadZipFile, KeyError):
         return f"{path} is not a readable .docx file (it may be an old .doc)."
 
-    root = ElementTree.fromstring(xml)
+    try:
+        root = ElementTree.fromstring(xml)
+    except ElementTree.ParseError as exc:
+        return f"{path} contains a malformed word/document.xml: {exc}"
+
     paragraphs: list[str] = []
     for paragraph in root.iter(f"{_DOCX_NS}p"):
         # A paragraph's text is split across any number of <w:t> runs;

@@ -13,7 +13,6 @@ send to endpoints *you* configured.
 
 from __future__ import annotations
 
-import json
 import os
 import smtplib
 from email.message import EmailMessage
@@ -82,7 +81,7 @@ def send_email(config: Config, subject: str, body: str, to: str = "") -> str:
         name
         for name, value in (
             ("SMTP_HOST", host), ("SMTP_USER", user),
-            ("SMTP_PASSWORD", password), ("recipient", recipient),
+            ("SMTP_PASSWORD", password), ("SMTP_TO", recipient),
         )
         if not value
     ]
@@ -99,7 +98,12 @@ def send_email(config: Config, subject: str, body: str, to: str = "") -> str:
     message["To"] = recipient
     message.set_content(body)
 
-    port = int(os.getenv("SMTP_PORT", "587"))
+    raw_port = os.getenv("SMTP_PORT", "587")
+    try:
+        port = int(raw_port)
+    except ValueError:
+        return f"SMTP_PORT is {raw_port!r}, which is not a port number. Set it to an integer, e.g. 587."
+
     try:
         with smtplib.SMTP(host, port, timeout=30) as server:
             server.starttls()  # never send credentials over a plaintext link

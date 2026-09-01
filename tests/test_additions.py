@@ -235,8 +235,6 @@ class TestExpandedLibrary(unittest.TestCase):
         self.assertNotIn("send_email", registry.tools)
 
 
-if __name__ == "__main__":
-    unittest.main(verbosity=2)
 
 
 class TestMacOSPathHandling(unittest.TestCase):
@@ -310,3 +308,95 @@ class TestMacOSPathHandling(unittest.TestCase):
         for escape in ("../../../etc/passwd", "/etc/passwd", str(self.real.parent)):
             with self.assertRaises(SandboxViolation, msg=f"{escape} was not blocked"):
                 files.read_file(config=config, path=escape)
+
+
+class TestReviewFindings(unittest.TestCase):
+    """
+    Regressions for defects a review bot caught on the pull request.
+
+    Each of these was real: a page range the docstring promised to clamp but
+    didn't, an unguarded parse that would abort a run, and a config error that
+    named something you cannot put in a .env file.
+    """
+
+    def setUp(self) -> None:
+        self.tmp = tempfile.TemporaryDirectory()
+        self.config = Config.load(workspace=Path(self.tmp.name).resolve(), dry_run=False)
+
+    def tearDown(self) -> None:
+        self.tmp.cleanup()
+
+    def test_page_zero_clamps_instead_of_raising(self) -> None:
+        # start clamped up to 1 while end stayed 0, so the range came out
+        # empty and raised — from input the docstring says it clamps.
+        self.assertEqual(documents._parse_page_range("0", 5), [0])
+        self.assertEqual(documents._parse_page_range("0-0", 5), [0])
+        self.assertEqual(documents._parse_page_range("0-99", 5), [0, 1, 2, 3, 4])
+
+    def test_page_range_still_rejects_nonsense(self) -> None:
+        # "-3" reads as a range with no start, which is genuinely ambiguous —
+        # a clear error beats guessing at "up to 3" or "page minus three".
+        for bad in ("first-few", "-3", "3-", "abc"):
+            with self.assertRaises(ValueError, msg=f"{bad!r} should be rejected"):
+                documents._parse_page_range(bad, 5)
+
+    def test_malformed_docx_xml_is_reported_not_raised(self) -> None:
+        # A valid zip whose document.xml is not valid XML: the parse must
+        # come back as a tool result the model can read.
+        buffer = io.BytesIO()
+        with zipfile.ZipFile(buffer, "w") as archive:
+            archive.writestr("word/document.xml", "<w:document><unclosed>")
+        (self.config.workspace / "broken.docx").write_bytes(buffer.getvalue())
+
+        result = documents.read_docx(config=self.config, path="broken.docx")
+        self.assertIn("malformed", result)
+
+    def test_bad_smtp_port_is_reported_not_raised(self) -> None:
+        saved = dict(os.environ)
+        try:
+            os.environ.update({
+                "SMTP_HOST": "smtp.example.com", "SMTP_USER": "u",
+                "SMTP_PASSWORD": "p", "SMTP_TO": "to@example.com",
+                "SMTP_PORT": "not-a-port",
+            })
+            result = notify.send_email(config=self.config, subject="s", body="b")
+            self.assertIn("SMTP_PORT", result)
+            self.assertIn("not-a-port", result)
+        finally:
+            os.environ.clear()
+            os.environ.update(saved)
+
+    def test_missing_email_config_names_env_vars_only(self) -> None:
+        # It used to list "recipient", which is not something you can set.
+        saved = dict(os.environ)
+        try:
+            for key in ("SMTP_HOST", "SMTP_USER", "SMTP_PASSWORD", "SMTP_TO"):
+                os.environ.pop(key, None)
+            result = notify.send_email(config=self.config, subject="s", body="b")
+            self.assertIn("SMTP_TO", result)
+            self.assertNotIn("recipient", result)
+        finally:
+            os.environ.clear()
+            os.environ.update(saved)
+
+    def test_every_test_class_runs_when_the_file_is_run_directly(self) -> None:
+        # The __main__ block had been left mid-file, so running this module
+        # directly executed only the classes above it and still printed OK.
+        source = Path(__file__).read_text(encoding="utf-8")
+        main_at = source.index('if __name__ == "__main__":')
+        self.assertNotIn("\nclass ", source[main_at:],
+                         "a test class is defined after the __main__ block and will not run")
+
+    def test_generated_site_puts_title_in_head(self) -> None:
+        # The published page is a fragment (the host supplies <head>); the
+        # repo copy is a whole document and must not carry <title> in <body>.
+        page = Path(__file__).resolve().parent.parent / "docs" / "index.html"
+        if not page.exists():
+            self.skipTest("docs/index.html not built")
+        html = page.read_text(encoding="utf-8")
+        self.assertEqual(html.count("<title>"), 1)
+        self.assertLess(html.index("<title>"), html.index("</head>"))
+
+
+if __name__ == "__main__":
+    unittest.main(verbosity=2)
