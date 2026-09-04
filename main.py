@@ -130,4 +130,15 @@ def main(argv: list[str] | None = None) -> int:
 
 
 if __name__ == "__main__":
+    # Piping into `head` closes our stdout early. Python turns that into a
+    # BrokenPipeError traceback, where every other CLI just exits quietly —
+    # so restore the default SIGPIPE behaviour on platforms that have it.
+    try:
+        import signal
+
+        signal.signal(signal.SIGPIPE, signal.SIG_DFL)
+    except (ImportError, AttributeError, ValueError):
+        # Windows has no SIGPIPE; nothing to restore there.
+        pass
+
     sys.exit(main())

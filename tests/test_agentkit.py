@@ -47,6 +47,11 @@ class TestSchemaGeneration(unittest.TestCase):
         self.assertEqual(spec.description, "Repeat a name a number of times.")
         self.assertEqual(spec.schema["properties"]["count"]["description"], "how many times")
 
+    def test_schema_is_closed_to_undeclared_fields(self) -> None:
+        # An open object lets the model invent arguments that sail through
+        # validation and reach the handler.
+        self.assertIs(sample_tool._tool.schema["additionalProperties"], False)
+
     def test_optional_type_unwraps_to_its_inner_type(self) -> None:
         # `list[str] | None` must describe an array, not a union.
         self.assertNotIn("anyOf", sample_tool._tool.schema["properties"]["tags"])
